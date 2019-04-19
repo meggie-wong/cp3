@@ -147,10 +147,10 @@ client *new_client(int client_fd, int is_server, size_t sibling_idx) {
     new->send_queue_tail = NULL;
     new->throughput = 0;
     new->number_of_rates = 4;
-     new->bit_rates[0] = 10;
-     new->bit_rates[1] = 100;
-     new->bit_rates[2] = 500;
-     new->bit_rates[3] = 1000;
+    new->bit_rates[0] = 10;
+    new->bit_rates[1] = 100;
+    new->bit_rates[2] = 500;
+    new->bit_rates[3] = 1000;
     return new;
 }
 
@@ -213,7 +213,7 @@ int remove_client(client **clients, size_t i, fd_set *read_set, fd_set *write_se
         free_client(clients[sib_idx]);
         clients[sib_idx] = NULL;
     }
-    free(clients[i]);
+    free_client(clients[i]);
     clients[i] = NULL;
     return 0;
 }
@@ -460,6 +460,7 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
         }
         printf("[Message] %s\n", res.message);
         bytes_queued += queue_message_send(clients, sibling_idx, res);
+        free(res.message);
         FD_SET(clients[sibling_idx]->fd, write_set);
         return bytes_queued;
     }
