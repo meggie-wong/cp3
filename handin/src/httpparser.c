@@ -114,22 +114,6 @@ int get_content_length(char *header_buffer, size_t header_buffer_len) {
 
 }
 
-char* get_content_type(char *header_buffer, size_t header_buffer_len) {
-    char* val = malloc(INIT_BUF_SIZE);
-    int header_present;
-
-    memset(val, '\0', INIT_BUF_SIZE);
-
-    header_present = get_header_val(header_buffer, header_buffer_len, "Content-Type", strlen("Content-Type"), val);
-
-    if (header_present == 0) {
-        return NULL;
-    }
-
-    return val;
-
-}
-
 int find_http_message_end(char* recv_buffer, size_t recv_buffer_len) {
     char *request_end;
     int content_length;
@@ -208,5 +192,22 @@ char *resize(char *buf, int new_len, int old_len)
 	memcpy(new_buf, buf, old_len);
 	free(buf);
 	return new_buf;
+}
+
+
+char* get_content_type(char *header_buffer, size_t header_buffer_len) {
+    char* val = malloc(INIT_BUF_SIZE);
+    int header_present;
+
+    memset(val, '\0', INIT_BUF_SIZE);
+
+    header_present = get_header_val(header_buffer, header_buffer_len, "Content-Type", strlen("Content-Type"), val);
+
+    if (header_present == 0) {
+        return NULL;
+    }
+
+    return val;
+
 }
 
