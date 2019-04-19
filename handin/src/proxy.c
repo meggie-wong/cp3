@@ -12,14 +12,15 @@
 *              to send such mail to trash :)           *
 ********************************************************/
 #include "proxy.h"
+#include "logger.h"
 
-char* log_path = NULL;
-float alpha = 0.0;
-int listen_port = 0;
-char* fake_ip = NULL;
-char* dns_ip = NULL;
-int dns_port = 0;
-char* www_ip = NULL;
+char* log_path;
+float alpha;
+int listen_port;
+char* fake_ip;
+char* dns_ip;
+int dns_port;
+char* www_ip;
 
 chunk_node_t* creat_chunk_node(char* request) {
     int bitrate = 0;
@@ -93,7 +94,6 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
     printf("[*]parse: %s, %lu, %d, %d, %d\n", new_request, strlen(new_request), bitrate, chunk_node->seg, chunk_node->frag);
     printf("clients[i]->number_of_rates = %d\n", clients[i]->number_of_rates);
     // find the fit bitrate
-    bitrate = 10000000;
     if (cur_throughput == 0) {
         bitrate = 10000000;
     } else {
@@ -103,15 +103,22 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
         printf("clients[i]->bit_rates[idx] = %d T_cur = %d\n", clients[i]->bit_rates[idx],cur_throughput);
         if (cur_throughput == 0) {
             // pick the minimal birtate
-            if (clients[i]->bit_rates[idx] < bitrate)
+            if (clients[i]->bit_rates[idx] < bitrate) 
                 bitrate = clients[i]->bit_rates[idx];
         }
         if (clients[i]->bit_rates[idx] < cur_throughput/1.5 && clients[i]->bit_rates[idx] > bitrate) {
             bitrate = clients[i]->bit_rates[idx];
         }
     }
+    if(bitrate == 0) {
+        for (idx = 0; idx< clients[i]->number_of_rates; idx++) {
+            // pick the minimal birtate
+            if (clients[i]->bit_rates[idx] < bitrate) 
+                bitrate = clients[i]->bit_rates[idx];
+        }
+    }
     chunk_node->bitrate = bitrate;
-
+    
     char buf[INIT_BUF_SIZE];
     memset(buf, '\0', INIT_BUF_SIZE);
     sprintf(buf, "/%d", bitrate);
@@ -129,7 +136,7 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
  *  client_fd: The fd of the client you want to add
  *  is_server: A flag to tell us whether this client is a server or a requester
  *  sibling_idx: For a server it will be its client, for a client it will be its server
- *
+ *  
  *  @ENSURES: returns a pointer to a new client struct
  *
 */
@@ -168,7 +175,7 @@ void free_client(client* c) {
  *  read_set: The set we monitor for incoming data
  *  is_server: A flag to tell us whether this client is a server or a requester
  *  sibling_idx: For a server it will be its client's index, for a client it will be its server index
- *
+ *  
  *  @ENSURES: Returns the index of the added client if possible, otherwise -1
  *
 */
@@ -190,12 +197,12 @@ int add_client(int client_fd, client **clients, fd_set *read_set, int is_server,
  *  i: Index of the client to remove
  *  read_set: The set we monitor for incoming data
  *  write_set: The set we monitor for outgoing data
- *
+ *  
  *  @ENSURES: Removes the client and its sibling from all our data structures
  *
 */
 int remove_client(client **clients, size_t i, fd_set *read_set, fd_set *write_set) {
-
+    
     if (clients[i] == NULL) {
         return -1;
     }
@@ -236,8 +243,8 @@ int find_maxfd(int listen_fd, client **clients) {
  *  @REQUIRES:
  *  clients: A pointer to the array of client structures
  *  i: Index of the client to remove
- *
- *  @ENSURES:
+ *  
+ *  @ENSURES: 
  *  - tries to send the data present in a clients send buffer to that client
  *  - If data is sent, returns the remaining bytes to send, otherwise -1
  *
@@ -245,7 +252,7 @@ int find_maxfd(int listen_fd, client **clients) {
 int process_client_send(client **clients, size_t i) {
     int n;
     char *new_send_buffer;
-
+    
     n = send(clients[i]->fd, clients[i]->send_buf, clients[i]->send_buf_len, 0);
 
     if (n <= 0) {
@@ -267,8 +274,8 @@ int process_client_send(client **clients, size_t i) {
  *  @REQUIRES:
  *  clients: A pointer to the array of client structures
  *  i: Index of the client to remove
- *
- *  @ENSURES:
+ *  
+ *  @ENSURES: 
  *  - tries to recv data from the client and updates its internal state as appropriate
  *  - If data is received, return the number of bytes received, otherwise return 0 or -1
  *
@@ -280,7 +287,7 @@ int recv_from_client(client** clients, size_t i) {
 
     n = recv(clients[i]->fd, buf, INIT_BUF_SIZE, 0);
 
-
+    
     if (n <= 0) {
         return n;
     }
@@ -289,10 +296,10 @@ int recv_from_client(client** clients, size_t i) {
 
     while (n > new_size - clients[i]->recv_buf_len) {
         new_size *= 2;
-
+        
     }
-    clients[i]->recv_buf = resize(clients[i]->recv_buf,
-                                  new_size, clients[i]->recv_buf_size);
+    clients[i]->recv_buf = resize(clients[i]->recv_buf, 
+        new_size, clients[i]->recv_buf_size);
     clients[i]->recv_buf_size = new_size;
 
     memcpy(&(clients[i]->recv_buf[clients[i]->recv_buf_len]), buf, n);
@@ -307,8 +314,8 @@ int recv_from_client(client** clients, size_t i) {
  *  clients: A pointer to the array of client structures
  *  i: Index of the client to remove
  *  buf: The message to add to the send buffer
- *
- *  @ENSURES:
+ *  
+ *  @ENSURES: 
  *  - appends data to the client's send buffer and returns the number of bytes appended
  *
 */
@@ -320,10 +327,10 @@ int queue_message_send(client **clients, size_t i, pop_response res) {
 
     while (n > new_size - clients[i]->send_buf_len) {
         new_size *= 2;
-
+        
     }
-    clients[i]->send_buf = resize(clients[i]->send_buf,
-                                  new_size, clients[i]->send_buf_size);
+    clients[i]->send_buf = resize(clients[i]->send_buf, 
+        new_size, clients[i]->send_buf_size);
     clients[i]->send_buf_size = new_size;
 
     memcpy(&(clients[i]->send_buf[clients[i]->send_buf_len]), res.message, n);
@@ -334,7 +341,6 @@ int queue_message_send(client **clients, size_t i, pop_response res) {
 void server_response_handler(client **clients, size_t i, pop_response res) {
     char* response = res.message;
     char* content_type = get_content_type(response, res.message_length);
-    printf("response content_type is %s\n", content_type);
     if(content_type!= NULL && strstr(content_type, "video/f4f")) {
         float time_out;
         int new_throughput;
@@ -348,16 +354,13 @@ void server_response_handler(client **clients, size_t i, pop_response res) {
         timersub(&now, &head_chunk->send_time, &time_elapse);
         time_out = (time_elapse.tv_sec + (1.0 * time_elapse.tv_usec)/1000000);
         printf("time out is %2f\n", time_out);
-        printf("send_time: <%ld.%06ld> && now is <%ld.%06ld>\n", (long) head_chunk->send_time.tv_sec, (long) head_chunk->send_time.tv_usec, (long) now.tv_sec, (long) now.tv_usec);
-        new_throughput = get_content_length(response, res.message_length) * 8/(time_out*1000);
+        new_throughput = 8*get_content_length(response, res.message_length)/(time_out*1000);
         clients[clients[i]->sibling_idx]->throughput = alpha*new_throughput + (1-alpha)*clients[clients[i]->sibling_idx]->throughput;
-
+        
         printf("Updated throughput is %d\n", clients[clients[i]->sibling_idx]->throughput);
-        logger("%ld\t%f\t%d\t%d\t%d\t%s\t%dSeg%d-Frag%d\t\n",
-               (long)now.tv_sec, time_out, new_throughput, clients[clients[i]->sibling_idx]->throughput,
-               head_chunk->bitrate, www_ip, head_chunk->bitrate, head_chunk->seg, head_chunk->frag);
-        // logger("<time>%d\t<duration> <tput> <avg-tput> <bitrate> <server-ip> <chunkname>");
-        // logger("%ld\t%f\t%d\t%d\t%d\t%s\tSeg%d-Frag%d\t\n",(long) now.tv_sec,time_out,new_throughput,clients[clients[i]->sibling_idx]->throughput, head_chunk->bitrate, head_chunk->seg, head_chunk->frag);
+        logger("%ld %f %d %d %d %s %dSeg%d-Frag%d\n",
+            (long)now.tv_sec, time_out, new_throughput, clients[clients[i]->sibling_idx]->throughput, 
+            head_chunk->bitrate, www_ip, head_chunk->bitrate, head_chunk->seg, head_chunk->frag);
         pop_chunk_from_queue(clients, clients[i]->sibling_idx);
     }
 }
@@ -368,8 +371,8 @@ void server_response_handler(client **clients, size_t i, pop_response res) {
  *  i: Index of the client to remove
  *  data_available: flag whether you can call recv on this client without blocking
  *  write_set: the set containing the fds to observe for being ready to write to
- *
- *  @ENSURES:
+ *  
+ *  @ENSURES: 
  *  - tries to read data from the client, then tries to reap a complete http message
  *      and finally tries to queue the message to be forwarded to its sibling
  *  - returns number of bytes queued if no errors, -1 otherwise
@@ -411,14 +414,15 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
                 p = strstr(p, "bitrate=\"");
                 while (p != NULL) {
                     sscanf(p, "bitrate=\"%d", &rate);
-                    clients[clients[i]->sibling_idx]->bit_rates[count++] = rate;
+                    clients[sibling_idx]->bit_rates[count++] = rate;
                     p += nlen;
                     p = strstr(p, "bitrate=\"");
                 }
-                clients[clients[i]->sibling_idx]->number_of_rates = count;
+                clients[sibling_idx]->number_of_rates = count;
                 int dummy;
                 for (dummy = 0; dummy < count; dummy++) {
-                    printf("Bit Rate %d is %d\n", dummy, clients[clients[i]->sibling_idx]->bit_rates[dummy]);
+                    // printf("Bit Rate %d is %d\n", dummy, clients[clients[i]->sibling_idx]->bit_rates[dummy]);
+                    printf("Bit Rate %d is %d\n", dummy, clients[sibling_idx]->bit_rates[dummy]);
                 }
 
                 return 0;
@@ -446,10 +450,10 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
             } else {
                 // 其他request都直接转发到server
                 // TODO: 需要处理一下bitrate的重新计算问题
-                int bitrate, seq, frag;
-                if (strstr(msg_rcvd, "GET") != NULL
-                && strstr(strstr(msg_rcvd, "GET"), "Seg") != NULL &&
-                strstr(strstr(strstr(msg_rcvd, "GET"), "Seg"), "-Frag") != NULL) {
+                if (strstr(msg_rcvd, "GET") != NULL && 
+                    strstr(strstr(msg_rcvd, "GET"), "Seg") != NULL && 
+                    strstr(strstr(strstr(msg_rcvd, "GET"), "Seg"), "-Frag") != NULL) {
+
                     printf("[Message] client has chunk request, modify it and send to server\n");
                     res.message = chunk_request_handler(clients, i, msg_rcvd);
                     res.message_length = strlen(res.message);
@@ -460,8 +464,8 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
         }
         printf("[Message] %s\n", res.message);
         bytes_queued += queue_message_send(clients, sibling_idx, res);
-        free(res.message);
         FD_SET(clients[sibling_idx]->fd, write_set);
+        free(res.message);
         return bytes_queued;
     }
 
@@ -475,13 +479,10 @@ int start_proxying() {
     client **clients;
     size_t i;
 
-    // listen_port = 8888;
-    char* server_ip = "127.0.0.1";
-    if (www_ip != NULL) {
-        server_ip = www_ip;
-    }
-    unsigned short server_port = 8080;
-    char *my_ip = fake_ip;
+    listen_port = 8888;
+    char *server_ip = "127.0.0.1";
+    unsigned short server_port = 4399;
+    char *my_ip = "0.0.0.0";
 
 
     if ((listen_fd = open_listen_socket(listen_port)) < 0) {
@@ -496,7 +497,7 @@ int start_proxying() {
     FD_ZERO(&read_set);
     FD_ZERO(&write_set);
     FD_SET(listen_fd, &read_set);
-
+    
     max_fd = listen_fd;
     printf("Initiating select loop\n");
     while (1) {
@@ -514,25 +515,25 @@ int start_proxying() {
                 cli_size = sizeof(cli_addr);
 
                 if ((client_fd = accept(listen_fd, (struct sockaddr *) &cli_addr,
-                                        &cli_size)) == -1) {
+                                    &cli_size)) == -1) {
                     fprintf(stderr, "start_proxying: Failed to accept new connection");
                 }
 
-                    // add the client to the client_fd list of filed descriptors
+                // add the client to the client_fd list of filed descriptors
                 else if ((client_idx = add_client(client_fd, clients, &read_set, 0, -1))!= -1) {
-
+                    
                     int sibling_fd = open_socket_to_server(my_ip, server_ip, server_port);
                     int server_idx = add_client(sibling_fd, clients, &read_set, 1, client_idx);
                     clients[client_idx]->sibling_idx = server_idx;
                     printf("start_proxying: Connected to %s on FD %d\n"
-                           "And its sibling %s on FD %d\n", inet_ntoa(cli_addr.sin_addr),
-                           client_fd, server_ip, sibling_fd);
+                    "And its sibling %s on FD %d\n", inet_ntoa(cli_addr.sin_addr),
+                        client_fd, server_ip, sibling_fd);
                     clients[client_idx]->is_server = 0;
                     clients[server_idx]->is_server = 1;
 
                 }
                 else
-                    close(client_fd);
+                    close(client_fd);         
             }
 
             for (i = 0; i < MAX_CLIENTS - 1 && nready > 0; i++) {
@@ -559,14 +560,14 @@ int start_proxying() {
                                 if (remove_client(clients, i, &read_set, &write_set) < 0) {
                                     fprintf(stderr, "start_proxying: Error removing client\n");
                                 }
-                            }
+                            }                    
                             else if (nsend == 0) {
                                 FD_CLR(clients[i]->fd, &write_set);
                             }
                         }
                     }
                 }
-
+                
             }
             max_fd = find_maxfd(listen_fd, clients);
         }
@@ -585,17 +586,13 @@ int main(int argc, char* argv[]) {
         printf("provide %d args now\n", argc);
         return -1;
     }
-
-
     log_path = argv[1];
     alpha = atof(argv[2]);
     listen_port = atoi(argv[3]);
     fake_ip = argv[4];
     dns_ip = argv[5];
     dns_port = atoi(argv[6]);
-    if (argc == 8) {
-        www_ip = argv[7];
-    }
+    www_ip = argv[7];
     init_log(log_path);
     // printf("finish parse the args\n");
 
