@@ -597,8 +597,8 @@ int main(int argc, char* argv[]) {
     dns_port = atoi(argv[6]);
     www_ip = argv[7];
     init_log(log_path);
-    // printf("finish parse the args\n");
-
+    printf("finish parse the args\n");
+    printf("arg listen_port : %d, alpha: %f, server_ip: %s, fake_ip: %s\n", listen_port, alpha, www_ip, fake_ip);
     start_proxying();
     return 0;
 }
