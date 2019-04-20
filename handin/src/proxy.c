@@ -479,11 +479,13 @@ int start_proxying() {
     client **clients;
     size_t i;
 
-    listen_port = 8888;
-    char *server_ip = "127.0.0.1";
-    unsigned short server_port = 4399;
-    char *my_ip = "0.0.0.0";
-
+    // listen_port = 8888;
+    char* server_ip = "127.0.0.1";
+    if (www_ip != NULL) {
+        server_ip = www_ip;
+    }
+    unsigned short server_port = 8080;
+    char *my_ip = fake_ip;
 
     if ((listen_fd = open_listen_socket(listen_port)) < 0) {
         fprintf(stderr, "start_proxy: Failed to start listening\n");
