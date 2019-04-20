@@ -487,6 +487,7 @@ int start_proxying() {
     unsigned short server_port = 8080;
     char *my_ip = fake_ip;
 
+
     if ((listen_fd = open_listen_socket(listen_port)) < 0) {
         fprintf(stderr, "start_proxy: Failed to start listening\n");
         return -1;
