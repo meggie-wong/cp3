@@ -99,6 +99,7 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
     } else {
         bitrate = 0;
     }
+
     for (idx = 0; idx< clients[i]->number_of_rates; idx++) {
         printf("clients[i]->bit_rates[idx] = %d T_cur = %d\n", clients[i]->bit_rates[idx],cur_throughput);
         if (cur_throughput == 0) {
@@ -110,9 +111,11 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
             bitrate = clients[i]->bit_rates[idx];
         }
     }
+    idx = 0;
+    printf("first round bitrate: %d\n", bitrate);
     if(bitrate == 0) {
         bitrate == 999999999;
-        for (idx = 0; idx< clients[i]->number_of_rates; idx++) {
+        for (idx = 0; idx < clients[i]->number_of_rates; idx++) {
             // pick the minimal birtate
             if (clients[i]->bit_rates[idx] < bitrate) 
                 bitrate = clients[i]->bit_rates[idx];
