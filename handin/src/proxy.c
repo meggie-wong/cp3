@@ -111,6 +111,7 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
         }
     }
     if(bitrate == 0) {
+        bitrate == 999999999;
         for (idx = 0; idx< clients[i]->number_of_rates; idx++) {
             // pick the minimal birtate
             if (clients[i]->bit_rates[idx] < bitrate) 
