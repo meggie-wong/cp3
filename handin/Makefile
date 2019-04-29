@@ -7,20 +7,23 @@ SDIR=src
 
 LIBS=-lm
 
-_DEPS = proxy.h httpparser.h customsocket.h logger.h 
+_DEPS = proxy.h httpparser.h customsocket.h logger.h nameserver.h dns_helper.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = proxy.o httpparser.o customsocket.o logger.o
+_OBJ = proxy.o httpparser.o customsocket.o logger.o nameserver.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-BINS = proxy
+BINS = proxy nameserver
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: proxy
+all: proxy nameserver
 
 proxy: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+nameserver: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 customsocket: $(OBJ)

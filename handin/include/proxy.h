@@ -3,6 +3,7 @@
 #include "customsocket.h"
 #include "logger.h"
 #include <sys/time.h>
+#include "mydns.h"
 
 #define INIT_BUF_SIZE 8192
 #define MAX_CLIENTS FD_SETSIZE

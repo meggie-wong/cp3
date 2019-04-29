@@ -99,7 +99,6 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
     } else {
         bitrate = 0;
     }
-
     for (idx = 0; idx< clients[i]->number_of_rates; idx++) {
         printf("clients[i]->bit_rates[idx] = %d T_cur = %d\n", clients[i]->bit_rates[idx],cur_throughput);
         if (cur_throughput == 0) {
@@ -111,11 +110,8 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
             bitrate = clients[i]->bit_rates[idx];
         }
     }
-    idx = 0;
-    printf("first round bitrate: %d\n", bitrate);
     if(bitrate == 0) {
-        bitrate = 999999999;
-        for (idx = 0; idx < clients[i]->number_of_rates; idx++) {
+        for (idx = 0; idx< clients[i]->number_of_rates; idx++) {
             // pick the minimal birtate
             if (clients[i]->bit_rates[idx] < bitrate) 
                 bitrate = clients[i]->bit_rates[idx];
@@ -490,7 +486,6 @@ int start_proxying() {
     }
     unsigned short server_port = 8080;
     char *my_ip = fake_ip;
-    printf("listen on port %d\n", listen_port);
 
     if ((listen_fd = open_listen_socket(listen_port)) < 0) {
         fprintf(stderr, "start_proxy: Failed to start listening\n");
@@ -528,7 +523,7 @@ int start_proxying() {
 
                 // add the client to the client_fd list of filed descriptors
                 else if ((client_idx = add_client(client_fd, clients, &read_set, 0, -1))!= -1) {
-                    
+                    resolve(NULL,NULL,NULL,NULL);
                     int sibling_fd = open_socket_to_server(my_ip, server_ip, server_port);
                     int server_idx = add_client(sibling_fd, clients, &read_set, 1, client_idx);
                     clients[client_idx]->sibling_idx = server_idx;
@@ -601,8 +596,9 @@ int main(int argc, char* argv[]) {
     dns_port = atoi(argv[6]);
     www_ip = argv[7];
     init_log(log_path);
-    printf("finish parse the args\n");
-    printf("arg listen_port : %d, alpha: %f, server_ip: %s, fake_ip: %s\n", listen_port, alpha, www_ip, fake_ip);
+    init_mydns(dns_ip, dns_port);
+    // printf("finish parse the args\n");
+
     start_proxying();
     return 0;
 }
