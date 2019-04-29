@@ -1,4 +1,12 @@
 #include <netdb.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 /**
  * Initialize your client DNS library with the IP address and port number of
