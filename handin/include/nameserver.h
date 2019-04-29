@@ -1,5 +1,4 @@
 // #include "customsocket.h"
-#include "logger.h"
 #include <sys/time.h>
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -9,4 +8,3 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
-#include "nameserver.h"

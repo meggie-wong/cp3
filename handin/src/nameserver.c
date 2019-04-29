@@ -50,7 +50,6 @@ void start_dns_server() {
         printf("DNS resolution sent.\n"); 
     }
 	
-	return 0; 
 }
 int main(int argc, char* argv[]) {
     // start_proxying();
