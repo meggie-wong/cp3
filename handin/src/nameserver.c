@@ -53,7 +53,7 @@ void start_dns_server() {
 }
 int main(int argc, char* argv[]) {
     // start_proxying();
-    printf("Starting the proxy...\n");
+    printf("Starting the dns server...\n");
     int start_index = 0;
 
     if (argc != 6 && argc != 7) {
