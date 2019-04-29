@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
         printf("provide %d args now\n", argc);
         return -1;
     }
-    if (argc == 6) {
+    if (argc == 7) {
         start_index = 1;
         if (strstr(argv[1], "-r") == NULL) {
             printf("first argument should be -r\n");
