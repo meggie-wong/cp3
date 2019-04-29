@@ -16,7 +16,7 @@ int init_mydns(const char *dns_ip, unsigned int dns_port) {
     memset(&ser_addr, 0, sizeof(ser_addr));
     ser_addr.sin_family = AF_INET;
     //ser_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
-    ser_addr.sin_addr.s_addr = htonl(dns_ip);  //注意网络序转换
+    ser_addr.sin_addr.s_addr = inet_addr(dns_ip);  //注意网络序转换
     ser_addr.sin_port = htons(dns_port);  //注意网络序转换
     // udp_msg_sender(client_fd, (struct sockaddr*)&ser_addr);
     // close(client_fd);
