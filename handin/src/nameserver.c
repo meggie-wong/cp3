@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     printf("Starting the proxy...\n");
     int start_index = 0;
 
-    if (argc != 5 || argc != 6) {
+    if (argc != 6 && argc != 7) {
         printf("[Usage] ./nameserver [-r] <log> <ip> <port> <servers> <LSAs>\n");
         printf("provide %d args now\n", argc);
         return -1;
