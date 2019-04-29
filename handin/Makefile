@@ -23,7 +23,7 @@ all: proxy nameserver
 proxy: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-nameserver: nameserver.o
+nameserver: build/nameserver.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 customsocket: $(OBJ)
