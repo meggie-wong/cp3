@@ -27,7 +27,7 @@ int resolve(const char *node, const char *service,
     // socklen_t len;
     struct sockaddr_in src;
     int n, len; 
-    char buffer[MAXLINE]; 
+    char buffer[1024]; 
     char *hello = "Hello from client";
     while(1)
     {
@@ -36,7 +36,7 @@ int resolve(const char *node, const char *service,
                     sizeof(ser_addr)); 
         printf("Hello message sent.\n");
 
-        memset(buf, 0, BUFF_LEN);
+        memset(buffer, 0, BUFF_LEN);
         n = recvfrom(client_fd, (char *)buffer, MAXLINE,  
                 MSG_WAITALL, (struct sockaddr *) &ser_addr, 
                 &len); 
