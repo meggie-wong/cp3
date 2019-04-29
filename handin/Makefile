@@ -7,10 +7,10 @@ SDIR=src
 
 LIBS=-lm
 
-_DEPS = proxy.h httpparser.h customsocket.h logger.h dns_helper.h
+_DEPS = proxy.h httpparser.h customsocket.h logger.h dns_helper.h mydns.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = proxy.o httpparser.o customsocket.o logger.o
+_OBJ = proxy.o httpparser.o customsocket.o logger.o mydns.c
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 BINS = proxy nameserver
