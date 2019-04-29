@@ -1,5 +1,6 @@
 #include "mydns.h"
 
+#define MAXLINE 1024
 
 int client_fd;
 struct sockaddr_in ser_addr;
@@ -27,7 +28,7 @@ int resolve(const char *node, const char *service,
     // socklen_t len;
     struct sockaddr_in src;
     int n, len; 
-    char buffer[1024]; 
+    char buffer[MAXLINE]; 
     char *hello = "Hello from client";
     while(1)
     {
@@ -36,7 +37,7 @@ int resolve(const char *node, const char *service,
                     sizeof(ser_addr)); 
         printf("Hello message sent.\n");
 
-        memset(buffer, 0, BUFF_LEN);
+        memset(buffer, 0, MAXLINE);
         n = recvfrom(client_fd, (char *)buffer, MAXLINE,  
                 MSG_WAITALL, (struct sockaddr *) &ser_addr, 
                 &len); 
