@@ -77,8 +77,9 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     for (i = 0; i < len; i++) {
         printf("%d[%c] ", buffer[i], buffer[i]);
     }
+    printf("\n====\n");
 
-    len = strlen(query_message->question.QNAME);
+    len = strlen(query_message->question.QNAME) + 1;
     memcpy(ptr, &(query_message->question.QNAME), len);
     ptr += len;
 
