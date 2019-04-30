@@ -27,8 +27,8 @@ query_message_t* create_query_message(char* query_name) {
     query_message_t* query_message;
     char encode_name[MAXLINE];
     query_message = (query_message_t*) malloc (sizeof(query_message_t));
-    create_header(&(query_message->header));
-    header->QR = 0;
+    dns_header_t* header = create_header(&(query_message->header));
+    header.QR = 0;
     header->AA = 0;
     header->QDCOUNT = htons(1);
     
