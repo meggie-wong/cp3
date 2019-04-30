@@ -1,6 +1,6 @@
 #include "nameserver.h"
 
-#define MAXLINE 1024 
+// #define MAXLINE 1024 
 
 char* log_path;
 char* dns_ip;
