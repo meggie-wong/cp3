@@ -70,46 +70,46 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
 
-    memcpy(buffer, query_message->header, len);
+    memcpy(buffer, &(query_message->header), len);
     ptr += len;
 
     len = strlen(query_message->question.QNAME)
-    memcpy(ptr, query_message->question.QNAME, len);
+    memcpy(ptr, &(query_message->question.QNAME), len);
     ptr += len;
 
     len = sizeof(uint16_t);
-    memcpy(ptr, query_message->question.QTYPE, sizeof(uint16_t));
+    memcpy(ptr, &(query_message->question.QTYPE), sizeof(uint16_t));
     ptr += len;
 
     len = sizeof(uint16_t);
-    memcpy(ptr, query_message->question.QCLASS, sizeof(uint16_t));
+    memcpy(ptr, &(query_message->question.QCLASS), sizeof(uint16_t));
     ptr += len;
 }
 
 void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     char* ptr = buffer;
     int len = sizeof(answer_message->header);
-    memcpy(buffer, answer_message->header, len);
+    memcpy(buffer, &(answer_message->header), len);
     ptr += len;
 
     len = strlen(answer_message->answer.NAME);
-    memcpy(ptr, answer_message->answer.NAME, len);
+    memcpy(ptr, &(answer_message->answer.NAME), len);
     ptr += len;
 
     len = sizeof(uint16_t);
-    memcpy(ptr, answer_message->answer.TYPE, len);
+    memcpy(ptr, &(answer_message->answer.TYPE), len);
     ptr += len;
 
     len = sizeof(uint16_t);
-    memcpy(ptr, answer_message->answer.CLASS, len);
+    memcpy(ptr, &(answer_message->answer.CLASS), len);
     ptr += len;
     
     len = sizeof(uint32_t);
-    memcpy(ptr, answer_message->answer.TTL, len);
+    memcpy(ptr, &(answer_message->answer.TTL), len);
     ptr += len;
 
     len = sizeof(uint16_t);
-    memcpy(ptr, answer_message->answer.RDLENGTH, len);
+    memcpy(ptr, &(answer_message->answer.RDLENGTH), len);
     ptr += len;
 
     len = strlen(answer_message->answer.RDATA);
@@ -121,7 +121,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 void buffer_dns_error(char*buffer, answer_message_t* error_message) {
     char* ptr = buffer;
     int len = sizeof(error_message->header);
-    memcpy(buffer, error_message->header, len);
+    memcpy(buffer, &(error_message->header), len);
 }
 
 void encode_domain(char* domain_name, char* res_buf) {
