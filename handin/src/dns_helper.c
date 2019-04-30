@@ -8,7 +8,6 @@
 dns_header_t* create_header(dns_header_t* header) {
     uint16_t id = 1377;
     header->ID = htons(id);
-    printf("-------:%x %x\n", header->ID, id);
     header->QR = 0;
     header->OP_CODE = 0;
     header-> AA = 0;
@@ -81,6 +80,7 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
     memcpy(buffer, &(query_message->header), len);
+    printf("****** %x %x\n", buffer[0, buffer[1] );
     ptr += len;
     
     len = strlen(query_message->question.QNAME) + 1;
