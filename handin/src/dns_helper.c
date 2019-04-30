@@ -30,6 +30,13 @@ query_message_t* create_query_message(char* query_name) {
     dns_header_t* header = create_header(&(query_message->header));
     header->QDCOUNT = htons(1);
     encode_domain(query_name, encode_name);
+    
+    int i = 0;
+    for(i=0; i<strlen(encode_name) + 1;i++) {
+        printf("%x[%c] ", encode_name[i]);
+    }
+    printf("\n");
+
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 3);
 
     memcpy(query_message->question.QNAME, encode_name, strlen(encode_name) + 1);
