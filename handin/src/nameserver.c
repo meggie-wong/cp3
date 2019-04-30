@@ -56,7 +56,7 @@ void start_dns_server() {
 	
 	// Filling server information 
 	servaddr.sin_family = AF_INET; // IPv4 
-	servaddr.sin_addr.s_addr =  INADDR_ANY; //inet_addr(dns_ip); // 打印的时候可以调用inet_ntoa()函数将其转换为char *类型.
+	servaddr.sin_addr.s_addr = inet_addr(dns_ip); // 打印的时候可以调用inet_ntoa()函数将其转换为char *类型.
 	servaddr.sin_port = htons(dns_port); 
 	
 	// Bind the socket with the server address 

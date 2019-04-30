@@ -16,7 +16,7 @@ int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
     }
     //绑定地址信息
     cli_addr.sin_family = AF_INET;
-    cli_addr.sin_port = htons(9693);
+    cli_addr.sin_port = htons(9999);
     cli_addr.sin_addr.s_addr = inet_addr(fake_ip);
     if ( bind(client_fd, (struct sockaddr* )&cli_addr, sizeof(struct sockaddr_in)) < 0)
     {
@@ -56,6 +56,8 @@ int resolve(const char *node, const char *service,
                 &len); 
         buffer[n] = '\0'; 
         printf("Server : %s\n", buffer); 
+        printf("S_ip = %s\n", inet_ntoa(ser_addr.sin_addr));
+        printf("C_ip = %s\n", inet_ntoa(cli_addr.sin_addr));
         break;
     }
             
