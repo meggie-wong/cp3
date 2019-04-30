@@ -29,6 +29,7 @@ int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
     ser_addr.sin_family = AF_INET;
     ser_addr.sin_addr.s_addr = inet_addr(dns_ip);  
     ser_addr.sin_port = htons(dns_port); 
+    resolve(NULL, NULL, NULL, NULL);
     // close(client_fd);
 }
 
