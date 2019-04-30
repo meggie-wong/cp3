@@ -29,14 +29,14 @@ query_message_t* create_query_message(char* query_name) {
     dns_header_t* header = create_header();
     header->QR = 0;
     header->AA = 0;
-    header-> QDCOUNT = htol(1);
+    header-> QDCOUNT = htonl(1);
     query_message = (query_message_t*) malloc (sizeof(query_message_t));
     encode_domain(query_name, encode_name);
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name));
-    strcp(query_message->question.QNAME, encode_name);
+    strcpy(query_message->question.QNAME, encode_name);
     query_message->question.NMLENGTH = strlen(query_message->question.QNAME);
-    query_message->question.QTYPE = htol(1);
-    query_message->question.QCLASS = htol(1);
+    query_message->question.QTYPE = htonl(1);
+    query_message->question.QCLASS = htonl(1);
     return query_message;
 }
 
@@ -45,13 +45,13 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     dns_header_t* header = create_header();
     header->QR = 1;
     header->AA = 1;
-    header-> ANCOUNT = htol(1);
+    header-> ANCOUNT = htonl(1);
     answer_message->answer.NMLENGTH = strlen(name);
     answer_message->answer.NAME = name;
-    answer_message->answer.TYPE = htol(1);
-    answer_message->answer.CLASS = htol(1);
-    answer_message->answer.TTL = htol(0);
-    answer_message->answer.RDLENGTH = htol(4);
+    answer_message->answer.TYPE = htonl(1);
+    answer_message->answer.CLASS = htonl(1);
+    answer_message->answer.TTL = htonl(0);
+    answer_message->answer.RDLENGTH = htonl(4);
     answer_message->answer.RDATA = inet_addr(response_ip);
     return answer_message;
 }
@@ -253,12 +253,12 @@ void read_LSA(char* lsa_path) {
 }
 
 
-int main() {
-//    char res[100];
-//    memset(res, 0, 100);
-//    encode_domain("video.cs.cmu.edu", res);
-//    printf("%s\n", res);
+// int main() {
+// //    char res[100];
+// //    memset(res, 0, 100);
+// //    encode_domain("video.cs.cmu.edu", res);
+// //    printf("%s\n", res);
 
-    read_LSA("topo2.lsa");
-    return 0;
-}
+//     read_LSA("topo2.lsa");
+//     return 0;
+// }
