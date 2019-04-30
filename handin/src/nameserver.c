@@ -145,6 +145,6 @@ int main(int argc, char* argv[]) {
         printf("%d[%c] ", buffer[i], buffer[i]);
     }
     /* =========== test only =========== */
-    start_dns_server();
+    // start_dns_server();
     return 0;
 }
