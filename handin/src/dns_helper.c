@@ -30,14 +30,15 @@ query_message_t* create_query_message(char* query_name) {
     dns_header_t* header = create_header(&(query_message->header));
     header->QDCOUNT = htons(1);
     encode_domain(query_name, encode_name);
-    
-    int i = 0;
-    for(i=0; i<strlen(encode_name) + 1;i++) {
-        printf("%x[%c] ", encode_name[i]);
-    }
-    printf("\n");
 
-    query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 3);
+    // int i = 0;
+    // for(i=0; i<strlen(encode_name) + 1;i++) {
+    //     printf("%x[%c] ", encode_name[i]);
+    // }
+    // printf("\n");
+
+    query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 1);
+    memset(query_message->question.QNAME, 0, strlen(encode_name) + 1);
 
     memcpy(query_message->question.QNAME, encode_name, strlen(encode_name) + 1);
     query_message->question.NMLENGTH = strlen(query_message->question.QNAME) + 1;
@@ -82,7 +83,7 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     ptr += len;
 
     len = strlen(query_message->question.QNAME) + 1;
-    memcpy(ptr, &(query_message->question.QNAME), len);
+    memcpy(ptr, query_message->question.QNAME, len);
 
     printf("copy %u ---\n", len);
     int i = 0;
