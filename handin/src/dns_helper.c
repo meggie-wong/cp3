@@ -8,6 +8,7 @@
 dns_header_t* create_header(dns_header_t* header) {
     uint16_t id = 1377;
     header->ID = htons(id);
+    printf("-------:%x %x\n", header->ID, id);
     header->QR = 0;
     header->OP_CODE = 0;
     header-> AA = 0;
@@ -53,7 +54,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = htons(1);
-    answer_message->answer.NMLENGTH = strlen(name);
+    answer_message->answer.NMLENGTH = strlen(name) + 1;
     answer_message->answer.NAME = name;
     answer_message->answer.TYPE = htons(1);
     answer_message->answer.CLASS = htons(1);
