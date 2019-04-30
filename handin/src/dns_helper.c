@@ -28,10 +28,7 @@ query_message_t* create_query_message(char* query_name) {
     char encode_name[MAXLINE];
     query_message = (query_message_t*) malloc (sizeof(query_message_t));
     dns_header_t* header = create_header(&(query_message->header));
-    header->QR = 0;
-    header->AA = 0;
     header->QDCOUNT = htons(1);
-    
     encode_domain(query_name, encode_name);
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 3);
     strcpy(query_message->question.QNAME, encode_name);
@@ -73,9 +70,13 @@ answer_message_t* create_error_message(char* response_ip, int error) {
 void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
-
     memcpy(buffer, &(query_message->header), len);
     ptr += len;
+    printf("copy %d", len);
+    int i = 0;
+    for (i = 0; i < len; i++) {
+        printf("%d[%c] ", buffer[i], buffer[i]);
+    }
 
     len = strlen(query_message->question.QNAME);
     memcpy(ptr, &(query_message->question.QNAME), len);
