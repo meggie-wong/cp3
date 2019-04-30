@@ -58,7 +58,7 @@ int resolve(const char *query_name, const char *service,
     char *hello = "Hello from client";
     while(1)
     {
-        sendto(client_fd, (const char *)hello, strlen(hello), 
+        sendto(client_fd, (const char *)buffer, strlen(query_message->question.QNAME) + sizeof(query_message), 
                 MSG_CONFIRM, (const struct sockaddr *) &ser_addr,  
                     sizeof(ser_addr)); 
         printf("Query message sent.\n");
