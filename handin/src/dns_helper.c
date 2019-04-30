@@ -27,6 +27,7 @@ query_message_t* create_query_message(char* query_name) {
     query_message_t* query_message;
     char encode_name[MAXLINE];
     dns_header_t* header = create_header();
+    printf(" header: %x", header->ID);
     header->QR = 0;
     header->AA = 0;
     header-> QDCOUNT = htons(1);
