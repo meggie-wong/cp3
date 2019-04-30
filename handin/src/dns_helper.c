@@ -81,7 +81,7 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     int len = sizeof(query_message->header);
     memcpy(buffer, &(query_message->header), len);
     ptr += len;
-
+    
     len = strlen(query_message->question.QNAME) + 1;
     memcpy(ptr, query_message->question.QNAME, len);
 

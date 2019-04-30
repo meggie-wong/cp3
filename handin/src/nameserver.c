@@ -140,8 +140,8 @@ int main(int argc, char* argv[]) {
     query_message_t* query_message = create_query_message(query_name);
     buffer_dns_question(buffer, query_message);
     int i = 0;
-    for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header)+4; i++) {
-        printf("%x[%c] ", buffer[i], buffer[i]);
+    for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header) + 5; i++) {
+        printf("%d: %x[%c] ", i, buffer[i], buffer[i]);
     }
     /* =========== test only =========== */
     // start_dns_server();
