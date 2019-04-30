@@ -25,15 +25,16 @@ dns_header_t* create_header() {
 
 query_message_t* create_query_message(char* query_name) {
     query_message_t* query_message;
+    char encode_name[MAXLINE];
     dns_header_t* header = create_header();
     header->QR = 0;
     header->AA = 0;
     header-> QDCOUNT = htol(1);
     query_message = (query_message_t*) malloc (sizeof(query_message_t));
+    encode_domain(query_name, encode_name);
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name));
-
-    encode_domain(query_name, query_message->question.QNAME);
-    query_message->question.NMLENGTH = strlen(query_message->question.QNAME)
+    strcp(query_message->question.QNAME, encode_name);
+    query_message->question.NMLENGTH = strlen(query_message->question.QNAME);
     query_message->question.QTYPE = htol(1);
     query_message->question.QCLASS = htol(1);
     return query_message;

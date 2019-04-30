@@ -1,6 +1,5 @@
 #include "mydns.h"
 
-#define MAXLINE 1024
 
 int client_fd;
 struct sockaddr_in ser_addr, cli_addr;
