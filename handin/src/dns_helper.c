@@ -80,7 +80,6 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
     memcpy(buffer, &(query_message->header), len);
-    printf("****** %x %x\n", buffer[0], buffer[1] );
     ptr += len;
     
     len = strlen(query_message->question.QNAME) + 1;
@@ -99,10 +98,11 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     char* ptr = buffer;
     int len = sizeof(answer_message->header);
     memcpy(buffer, &(answer_message->header), len);
+    printf("****** %x %x\n", buffer[0], buffer[1] );
     ptr += len;
 
     len = strlen(answer_message->answer.NAME);
-    memcpy(ptr, &(answer_message->answer.NAME), len);
+    memcpy(ptr, answer_message->answer.NAME, len);
     ptr += len;
 
     len = sizeof(uint16_t);
