@@ -2,4 +2,4 @@ all:
 	tar -xf autograde.tar
 	tar -xf handin.tar
 	cd handin; make
-	cd bitrate-project/grader; export PYTHONUNBUFFERED=YES; ./grader_cp1.py
+	cd bitrate-project/grader; export PYTHONUNBUFFERED=YES; ./grader_cp2.py
