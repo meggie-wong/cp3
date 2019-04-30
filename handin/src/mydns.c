@@ -4,7 +4,6 @@
 
 int client_fd;
 struct sockaddr_in ser_addr;
-
 int init_mydns(const char *dns_ip, unsigned int dns_port) {
 
     client_fd = socket(AF_INET, SOCK_DGRAM, 0);

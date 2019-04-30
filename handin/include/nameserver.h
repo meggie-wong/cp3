@@ -8,3 +8,16 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
+#include "logger.h"
+
+
+#define MAXSERVER 100
+
+typedef struct dns_record {
+    char* hostname;
+    char* server_ip[MAXSERVER];
+    int resolve_cnt;
+    int record_cnt;
+} dns_record_t;
+
+
