@@ -59,8 +59,8 @@ int resolve(const char *query_name, const char *service,
     while(1)
     {
         int i = 0;
-        for(i = 0; i<strlen(query_message->question.QNAME) + sizeof(query_message); i++) {
-            printf("%d[%c]", buffer[i], buffer[i]);
+        for(i = 0; i<strlen(query_message->question.QNAME) + sizeof(query_message)+10; i++) {
+            printf("%d[%c] ", buffer[i], buffer[i]);
         }
 
         sendto(client_fd, (const char *)buffer, strlen(query_message->question.QNAME) + sizeof(query_message), 

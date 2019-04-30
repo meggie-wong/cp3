@@ -131,6 +131,17 @@ int main(int argc, char* argv[]) {
 		dns_records.record_cnt ++;
 	} 
 	fclose(fp);											//关闭文件
+
+
+    /* =========== test only =========== */
+    cahr * query_name = "video.cmu.cd.edu";
+    query_message_t* query_message = create_query_message(query_name);
+    buffer_dns_question(buffer, query_message);
+    int i = 0;
+    for(i = 0; i<strlen(query_message->question.QNAME) + sizeof(query_message)+10; i++) {
+        printf("%d[%c] ", buffer[i], buffer[i]);
+    }
+    /* =========== test only =========== */
     start_dns_server();
     return 0;
 }

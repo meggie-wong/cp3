@@ -11,7 +11,7 @@
 struct dns_header {
     uint16_t ID;
     uint16_t QR : 1;
-    uint16_t OP_CODE : 1;
+    uint16_t OP_CODE : 4;
     uint16_t AA : 1;
     uint16_t TC : 1;
     uint16_t RD : 1;
