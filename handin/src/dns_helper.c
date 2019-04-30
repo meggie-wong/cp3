@@ -7,7 +7,8 @@
 
 dns_header_t* create_header() {
     dns_header_t* header = (dns_header_t*)malloc(sizeof(dns_header_t));
-    header->ID = htons(1337);
+    uint16_t id = 1377;
+    header->ID = htons(id);
     header->QR = 0;
     header->OP_CODE = 0;
     header-> AA = 0;
