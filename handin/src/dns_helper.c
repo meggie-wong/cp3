@@ -111,8 +111,8 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     memcpy(ptr, &(answer_message->answer.RDLENGTH), len);
     ptr += len;
 
-    len = strlen(uint32_t);
-    memcpy(ptr, &(answer_message->answer.RDATA), 4);
+    len = sizeof(uint32_t);
+    memcpy(ptr, &(answer_message->answer.RDATA), len);
     ptr += len;
 
 }
