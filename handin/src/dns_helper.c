@@ -5,8 +5,7 @@
 #include "dns_helper.h"
 
 
-dns_header_t* create_header() {
-    dns_header_t* header = (dns_header_t*)malloc(sizeof(dns_header_t));
+dns_header_t* create_header(dns_header_t* header) {
     uint16_t id = 1377;
     header->ID = htons(id);
     header->QR = 0;
@@ -27,12 +26,12 @@ dns_header_t* create_header() {
 query_message_t* create_query_message(char* query_name) {
     query_message_t* query_message;
     char encode_name[MAXLINE];
-    dns_header_t* header = create_header();
-    printf(" header: %x", header->ID);
+    query_message = (query_message_t*) malloc (sizeof(query_message_t));
+    create_header(&(query_message->header));
     header->QR = 0;
     header->AA = 0;
-    header-> QDCOUNT = htons(1);
-    query_message = (query_message_t*) malloc (sizeof(query_message_t));
+    header->QDCOUNT = htons(1);
+    
     encode_domain(query_name, encode_name);
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 3);
     strcpy(query_message->question.QNAME, encode_name);
@@ -44,7 +43,7 @@ query_message_t* create_query_message(char* query_name) {
 
 answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
-    dns_header_t* header = create_header();
+    dns_header_t* header = create_header(&(answer_message->header));
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = htons(1);
@@ -63,7 +62,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
 
 answer_message_t* create_error_message(char* response_ip, int error) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
-    dns_header_t* header = create_header();
+    dns_header_t* header = create_header(&(answer_message->header));
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = 0;
