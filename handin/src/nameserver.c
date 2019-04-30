@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
     answer_message_t* answer_message = create_answer_message(response_ip, query_name);
     buffer_dns_answer(buffer, answer_message);
     int i = 0;
-    for(i = 0; i < strlen(answer_message->answer.name) + sizeof(answer_message->header) + 9; i++) {
+    for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 15; i++) {
         printf("%d: %x[%c] ", i, buffer[i], buffer[i]);
     }
 
