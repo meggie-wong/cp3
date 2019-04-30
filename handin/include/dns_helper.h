@@ -1,6 +1,9 @@
 #include <stdint.h> 
 #include <string.h> // memcpy
 #include <stdlib.h> //realloc
+#include <sys/socket.h>   
+#include <netinet/in.h>   
+#include <arpa/inet.h>
 
 #define MAXLINE 4096
 #define MAX_NODE 1024
