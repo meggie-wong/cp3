@@ -49,7 +49,7 @@ int resolve(const char *node, const char *service,
 
         memset(buffer, 0, MAXLINE);
         n = recvfrom(client_fd, (char *)buffer, MAXLINE,  
-                MSG_WAITALL, (struct sockaddr *) &ser_addr, 
+                0, (struct sockaddr *) &ser_addr, 
                 &len); 
         buffer[n] = '\0'; 
         printf("Server : %s\n", buffer); 

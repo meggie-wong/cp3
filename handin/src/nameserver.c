@@ -80,7 +80,7 @@ void start_dns_server() {
 
         printf("Client : %s(ip=%s)\n", buffer, inet_ntoa(cliaddr.sin_addr)); 
         sendto(sockfd, (const char *)response_ip, strlen(response_ip), 
-            0, (const struct sockaddr *) &cliaddr, 
+            MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
                 len);
         // write DNS log
         // <time> <client-ip> <query-name> <response-ip>
