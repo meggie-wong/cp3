@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     // query_message_t* query_message = create_query_message(query_name);
     // buffer_dns_question(buffer, query_message);
     
-    char * response_ip = "3.0.0.1";
+    char * response_ip = "155.33.17.68";
     answer_message_t* answer_message = create_answer_message(response_ip, query_name);
     buffer_dns_answer(buffer, answer_message);
     int i = 0;
