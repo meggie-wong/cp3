@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 	{ 
         dns_records.server_ip[dns_records.record_cnt] = (char*)malloc(MAXLINE*sizeof(char));
 		fgets(dns_records.server_ip[dns_records.record_cnt], MAXLINE, fp);					    
-		printf("read %s", dns_records.server_ip[dns_records.record_cnt]);
+		printf("read %s\n", dns_records.server_ip[dns_records.record_cnt]);
 		dns_records.record_cnt ++;
 	} 
 	fclose(fp);											//关闭文件
