@@ -53,7 +53,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message->answer.CLASS = htons(1);
     answer_message->answer.TTL = htonl(0);
     answer_message->answer.RDLENGTH = htons(4);
-    answer_message->answer.RDATA = inet_addr(response_ip);
+    answer_message->answer.RDATA = (uint32_t)inet_addr(response_ip);
     return answer_message;
 }
 

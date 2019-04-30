@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
     /* =========== test only =========== */
     char buffer[MAXLINE]; 
     memset(buffer, 0, MAXLINE);
-    char * query_name = "video.cmu.cs.edu";
+    char * query_name = "www.northeastern.edu";
     // query_message_t* query_message = create_query_message(query_name);
     // buffer_dns_question(buffer, query_message);
     
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
     buffer_dns_answer(buffer, answer_message);
     int i = 0;
     for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 15; i++) {
-        printf("%d: %x[%c] \n", i, buffer[i], buffer[i]);
+        printf("%d: %x[%c]\t||\t", i, buffer[i], buffer[i]);
     }
 
     /* =========== test only =========== */
