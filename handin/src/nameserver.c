@@ -136,13 +136,11 @@ int main(int argc, char* argv[]) {
     /* =========== test only =========== */
     char buffer[MAXLINE]; 
     memset(buffer, 0, MAXLINE);
-    char * query_name = "video.cmu.cd.edu";
+    char * query_name = "video.cmu.cs.edu";
     query_message_t* query_message = create_query_message(query_name);
-    printf("header ID = %x\n", query_message->header.ID);
-    printf("QNAME = %s\n", query_message->question.QNAME);
     buffer_dns_question(buffer, query_message);
     int i = 0;
-    for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message)+10; i++) {
+    for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header)+4; i++) {
         printf("%x[%c] ", buffer[i], buffer[i]);
     }
     /* =========== test only =========== */

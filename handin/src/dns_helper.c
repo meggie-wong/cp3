@@ -85,14 +85,6 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     len = strlen(query_message->question.QNAME) + 1;
     memcpy(ptr, query_message->question.QNAME, len);
 
-    printf("copy %u ---\n", len);
-    int i = 0;
-    for (i = 0; i < len; i++) {
-        printf("%x[%c] ", ptr[i], ptr[i]);
-    }
-    printf("\n====\n");
-    ptr += len;
-
     len = sizeof(uint16_t);
     memcpy(ptr, &(query_message->question.QTYPE), sizeof(uint16_t));
     ptr += len;
