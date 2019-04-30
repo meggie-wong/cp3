@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "dns_helper.h"
 
 /**
  * Initialize your client DNS library with the IP address and port number of

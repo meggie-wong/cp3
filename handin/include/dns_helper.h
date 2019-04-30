@@ -20,6 +20,7 @@ struct dns_header {
 typedef struct dns_header dns_header_t;
 
 struct question {
+    uint32_t NMLENGTH;
     char* QNAME;
     uint16_t QTYPE;
     uint16_t QCLASS;
@@ -29,6 +30,7 @@ typedef struct question dns_question_t;
 
 
 struct resource_record {
+    uint32_t NMLENGTH;
     char* NAME;
     uint16_t TYPE;
     uint16_t CLASS;
@@ -74,3 +76,10 @@ typedef struct graph_nodes graph_t;
 
 
 void encode_domain(char* domain_name, char* res_buf);
+dns_header_t* create_header();
+query_message_t* create_query_message(char* query_name);
+answer_message_t* create_answer_message(char* response_ip, char* name);
+answer_message_t* create_error_message(char* response_ip, int error);
+void buffer_dns_question(char*buffer, query_message_t* query_message);
+void buffer_dns_answer(char*buffer, answer_message_t* answer_message);
+void buffer_dns_error(char*buffer, answer_message_t* error_message);
