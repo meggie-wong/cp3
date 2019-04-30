@@ -7,7 +7,7 @@
 
 dns_header_t* create_header() {
     dns_header_t* header = (dns_header_t*)malloc(sizeof(dns_header_t));
-    header->ID = 1337;
+    header->ID = htons(1337);
     header->QR = 0;
     header->OP_CODE = 0;
     header-> AA = 0;
@@ -29,14 +29,14 @@ query_message_t* create_query_message(char* query_name) {
     dns_header_t* header = create_header();
     header->QR = 0;
     header->AA = 0;
-    header-> QDCOUNT = htonl(1);
+    header-> QDCOUNT = htons(1);
     query_message = (query_message_t*) malloc (sizeof(query_message_t));
     encode_domain(query_name, encode_name);
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 3);
     strcpy(query_message->question.QNAME, encode_name);
     query_message->question.NMLENGTH = strlen(query_message->question.QNAME) + 1;
-    query_message->question.QTYPE = htonl(1);
-    query_message->question.QCLASS = htonl(1);
+    query_message->question.QTYPE = htons(1);
+    query_message->question.QCLASS = htons(1);
     return query_message;
 }
 
@@ -45,13 +45,13 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     dns_header_t* header = create_header();
     header->QR = 1;
     header->AA = 1;
-    header-> ANCOUNT = htonl(1);
+    header-> ANCOUNT = htons(1);
     answer_message->answer.NMLENGTH = strlen(name);
     answer_message->answer.NAME = name;
-    answer_message->answer.TYPE = htonl(1);
-    answer_message->answer.CLASS = htonl(1);
+    answer_message->answer.TYPE = htons(1);
+    answer_message->answer.CLASS = htons(1);
     answer_message->answer.TTL = htonl(0);
-    answer_message->answer.RDLENGTH = htonl(4);
+    answer_message->answer.RDLENGTH = htons(4);
     answer_message->answer.RDATA = (char*)malloc(4);
     struct in_addr ipAddr;
     unsigned long int ip = inet_addr(response_ip);
