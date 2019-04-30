@@ -83,7 +83,7 @@ typedef struct graph_nodes graph_t;
 
 
 void encode_domain(char* domain_name, char* res_buf);
-dns_header_t* create_header(ns_header_t* header);
+dns_header_t* create_header(dns_header_t* header);
 query_message_t* create_query_message(char* query_name);
 answer_message_t* create_answer_message(char* response_ip, char* name);
 answer_message_t* create_error_message(char* response_ip, int error);
