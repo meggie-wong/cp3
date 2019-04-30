@@ -7,7 +7,7 @@
 
 dns_header_t* create_header(dns_header_t* header) {
     uint16_t id = 1377;
-    header->ID = id;
+    header->ID = htons(id);
     header->QR = 0;
     header->OP_CODE = 0;
     header-> AA = 0;
@@ -31,12 +31,6 @@ query_message_t* create_query_message(char* query_name) {
     header->QDCOUNT = htons(1);
     encode_domain(query_name, encode_name);
 
-    // int i = 0;
-    // for(i=0; i<strlen(encode_name) + 1;i++) {
-    //     printf("%x[%c] ", encode_name[i]);
-    // }
-    // printf("\n");
-
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 1);
     memset(query_message->question.QNAME, 0, strlen(encode_name) + 1);
 
@@ -59,10 +53,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message->answer.CLASS = htons(1);
     answer_message->answer.TTL = htonl(0);
     answer_message->answer.RDLENGTH = htons(4);
-    answer_message->answer.RDATA = (char*)malloc(4);
-    struct in_addr ipAddr;
-    unsigned long int ip = inet_addr(response_ip);
-    memcpy(answer_message->answer.RDATA, &ip, 4);
+    answer_message->answer.RDATA = inet_addr(response_ip);
     return answer_message;
 }
 
@@ -98,7 +89,6 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     char* ptr = buffer;
     int len = sizeof(answer_message->header);
     memcpy(buffer, &(answer_message->header), len);
-    printf("****** %x %x\n", buffer[0], buffer[1] );
     ptr += len;
 
     len = strlen(answer_message->answer.NAME);
@@ -121,8 +111,8 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     memcpy(ptr, &(answer_message->answer.RDLENGTH), len);
     ptr += len;
 
-    len = strlen(answer_message->answer.RDATA);
-    memcpy(ptr, answer_message->answer.RDATA, len);
+    len = strlen(uint32_t);
+    memcpy(ptr, &(answer_message->answer.RDATA), 4);
     ptr += len;
 
 }

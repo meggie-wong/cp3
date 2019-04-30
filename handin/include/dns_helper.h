@@ -43,7 +43,7 @@ struct resource_record {
     uint16_t CLASS;
     uint32_t TTL;
     uint16_t RDLENGTH;
-    char* RDATA;
+    uint32_t RDATA;
 };
 
 typedef struct resource_record resource_record_t;
