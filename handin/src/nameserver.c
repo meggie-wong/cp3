@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
     /* =========== test only =========== */
     char buffer[MAXLINE]; 
     memset(buffer, 0, MAXLINE);
-    // char * query_name = "video.cmu.cs.edu";
+    char * query_name = "video.cmu.cs.edu";
     // query_message_t* query_message = create_query_message(query_name);
     // buffer_dns_question(buffer, query_message);
     
