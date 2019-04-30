@@ -9,6 +9,7 @@
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
 #include "logger.h"
+#include "dns_helper.h"
 
 
 #define MAXSERVER 100
