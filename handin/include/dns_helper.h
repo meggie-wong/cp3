@@ -1,3 +1,7 @@
+#include <stdint.h> 
+#include <string.h> // memcpy
+#include <stdlib.h> //realloc
+
 #define MAXLINE 4096
 #define MAX_NODE 1024
 
