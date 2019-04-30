@@ -52,7 +52,9 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message->answer.CLASS = htonl(1);
     answer_message->answer.TTL = htonl(0);
     answer_message->answer.RDLENGTH = htonl(4);
-    answer_message->answer.RDATA = inet_addr(response_ip);
+    answer_message->answer.RDATA = (char*)malloc(4);
+    unsigned_t ip = inet_addr(response_ip);
+    memcpy(answer_message->answer.RDATA, ip, 4);
     return answer_message;
 }
 
