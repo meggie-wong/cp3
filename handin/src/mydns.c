@@ -14,25 +14,22 @@ int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
        printf("create socket fail!\n");
        return -1;
     }
-    //绑定地址信息
+    memset(&cli_addr, 0, sizeof(cli_addr));
+    //bind client address
     cli_addr.sin_family = AF_INET;
     cli_addr.sin_port = htons(9999);
     cli_addr.sin_addr.s_addr = inet_addr(fake_ip);
     if ( bind(client_fd, (struct sockaddr* )&cli_addr, sizeof(struct sockaddr_in)) < 0)
     {
-        perror("bind");
+        printf("bind socket fail");
         exit(EXIT_FAILURE);
     }
 
     memset(&ser_addr, 0, sizeof(ser_addr));
     ser_addr.sin_family = AF_INET;
-    //ser_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
-    ser_addr.sin_addr.s_addr = inet_addr(dns_ip);  //注意网络序转换
-    ser_addr.sin_port = htons(dns_port);  //注意网络序转换
-    // udp_msg_sender(client_fd, (struct sockaddr*)&ser_addr);
+    ser_addr.sin_addr.s_addr = inet_addr(dns_ip);  
+    ser_addr.sin_port = htons(dns_port); 
     // close(client_fd);
-
-    
 }
 
 int resolve(const char *node, const char *service, 

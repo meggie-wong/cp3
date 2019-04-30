@@ -71,3 +71,6 @@ struct graph_nodes {
 };
 
 typedef struct graph_nodes graph_t;
+
+
+void encode_domain(char* domain_name, char* res_buf);
