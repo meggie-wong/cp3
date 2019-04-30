@@ -75,7 +75,7 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     printf("copy %u ---\n", len);
     int i = 0;
     for (i = 0; i < len; i++) {
-        printf("%d[%c] ", buffer[i], buffer[i]);
+        printf("%x[%c] ", buffer[i], buffer[i]);
     }
     printf("\n====\n");
 

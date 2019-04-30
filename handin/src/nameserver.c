@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     buffer_dns_question(buffer, query_message);
     int i = 0;
     for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message)+10; i++) {
-        printf("%d[%c] ", buffer[i], buffer[i]);
+        printf("%x[%c] ", buffer[i], buffer[i]);
     }
     /* =========== test only =========== */
     // start_dns_server();
