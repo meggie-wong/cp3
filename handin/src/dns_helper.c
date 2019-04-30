@@ -31,7 +31,8 @@ query_message_t* create_query_message(char* query_name) {
     header->QDCOUNT = htons(1);
     encode_domain(query_name, encode_name);
     query_message->question.QNAME = (char*)malloc(sizeof(char)* strlen(encode_name) + 3);
-    strcpy(query_message->question.QNAME, encode_name);
+
+    memcpy(query_message->question.QNAME, encode_name, strlen(encode_name) + 1);
     query_message->question.NMLENGTH = strlen(query_message->question.QNAME) + 1;
     query_message->question.QTYPE = htons(1);
     query_message->question.QCLASS = htons(1);
