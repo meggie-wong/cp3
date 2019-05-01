@@ -179,27 +179,27 @@ answer_message_t* de_buffer_answer(char* buffer) {
     char* p = buffer + sizeof(answer_message->header);
     
     int len = strlen(p) + 1;
-    printf("read %d name %s \n",len, p);
+    // printf("read %d name %s \n",len, p);
     answer->NAME = malloc(len);
     memcpy(answer->NAME, p, len);
     p += len + 6; // ignore question type, class and c00c
-    printf("read answer %x %x\n",p[0], p[1]);
+    // printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->TYPE), p, sizeof(uint16_t));
     p += len;
-    printf("read answer %x %x\n",p[0], p[1]);
+    // printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->CLASS), p, sizeof(uint16_t));
     p += len;
-    printf("read answer %d\n",*p);
+    // printf("read answer %d\n",*p);
     len = sizeof(uint32_t);
     memcpy(&(answer->TTL), p, sizeof(uint32_t));
     p += len;
-    printf("read answer %x %x\n",p[0], p[1]);
+    // printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->RDLENGTH), p, sizeof(uint16_t));
     p += len;
-    printf("read rdate %d\n",*p);
+    // printf("read rdate %d\n",*p);
     len = sizeof(uint32_t);
     memcpy(&(answer->RDATA), p, sizeof(uint32_t));
     p += len;
