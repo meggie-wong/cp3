@@ -98,7 +98,7 @@ void start_dns_server() {
         if (response_ip != NULL) {
             answer_message = create_answer_message(response_ip, query_message->question.QNAME);
             buffer_dns_answer(buffer, answer_message);
-            response_len =  strlen(answer_message->answer.NAME) + 1 + sizeof(answer_message->header) + 14;  
+            response_len =  strlen(answer_message->answer.NAME) + 1 + sizeof(answer_message->header) + 20;  
         } else {
             answer_message = create_error_message(3);
             buffer_dns_error(buffer, answer_message);
