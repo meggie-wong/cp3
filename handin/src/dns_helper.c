@@ -146,8 +146,9 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 
     len = sizeof(uint32_t);
     uint32_t ip = answer_message->answer.RDATA;
-    printf("ip = %x\n", ip);
+    printf("ip = %x  %d\n", ip, len);
     memcpy(ptr, &ip, len);
+    printf("%x, %x, %x, %x", ptr[0], ptr[1], ptr[2], ptr[3]);
     ptr += len;
 
 }
