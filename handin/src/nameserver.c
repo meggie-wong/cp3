@@ -19,7 +19,9 @@ void get_query_name(query_message_t* query_message, char * query_name) {
 
 char* get_response_ip(char* query_name, char* client_ip) {
     char * response_ip;
-    printf("query name is %s\n", query_name);
+    printf("query name (len = %d) is %s\n", query_name, strlen(query_name));
+    printf("record name (len = %d) is %s\n", dns_records.hostname, strlen(dns_records.hostname));
+    printf("compare result = %d\n", strcmp(dns_records.hostname, query_name));
     if ( method_robin ) {
         if( strcmp(dns_records.hostname, query_name) == 0 ) { // is video.cmu.cs.edu 
             response_ip = dns_records.server_ip[dns_records.resolve_cnt%dns_records.record_cnt];
@@ -102,8 +104,7 @@ void start_dns_server() {
         get_query_name(query_message, query_name);
         // strcpy(query_name, "video.cmu.cs.edu");
         printf("Client : %s(ip=%s)\n", query_name, inet_ntoa(cliaddr.sin_addr)); 
-
-        printf("After recover the query name is %s\n", query_message);
+        printf("After recover the query name is %s\n", query_name);
         memset(buffer, 0, MAXLINE);
         response_ip = get_response_ip(query_name, client_ip); 
         if (response_ip != NULL) {
