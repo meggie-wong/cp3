@@ -116,6 +116,8 @@ void start_dns_server() {
             buffer_dns_error(buffer, answer_message);
             response_len = sizeof(answer_message->header);
         }
+
+        printf("response id = %d******\n", answer_message->header.ID);
            
         sendto(sockfd, (const char *)buffer, response_len, 
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
