@@ -600,7 +600,15 @@ int main(int argc, char* argv[]) {
     init_log(log_path);
     init_mydns(dns_ip, dns_port, fake_ip);
     // printf("finish parse the args\n");
+    // ======================================== test_only ======================================== 
+    char response_ip[MAXLINE];
+    memset(response_ip, 0, MAXLINE);
+    resolve("video.cmu.cs.edu", response_ip);
 
-    start_proxying();
+    memset(response_ip, 0, MAXLINE);
+    resolve("www.cmu.cs.edu", response_ip);
+    // ======================================== end test ======================================== 
+
+    // start_proxying();
     return 0;
 }

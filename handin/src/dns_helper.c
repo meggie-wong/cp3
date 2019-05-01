@@ -26,6 +26,8 @@ dns_header_t* create_header(dns_header_t* header) {
 query_message_t* create_query_message(char* query_name) {
     query_message_t* query_message;
     char encode_name[MAXLINE];
+    memset(encode_name, 0, MAXLINE);
+
     query_message = (query_message_t*) malloc (sizeof(query_message_t));
     dns_header_t* header = create_header(&(query_message->header));
     header->QDCOUNT = htons(1);
@@ -70,25 +72,21 @@ answer_message_t* create_error_message(int error) {
     return answer_message;
 }
 
-void buffer_dns_header(char * buffer, dns_header_t* header) {
-    
-    int len = sizeof(*header);
-    memcpy(buffer, header, len);
-    printf("+++++++%x, %x\n", buffer[2], buffer[3]);
-    // uint16_t* ptr = buffer + 2;
-    uint16_t ptr = *(buffer + 2);
+void custom_hton4(char * buffer) {
+    // int len = sizeof(*header);
+    // memcpy(buffer, header, len);
+    uint16_t ptr = *buffer;
     uint16_t leftmask = 0b1100110011001100;
     uint16_t rightmask = 0b0011001100110011;
     uint16_t tmp = ((ptr & leftmask) >> 2) | ((ptr & rightmask) << 2);
-    printf("%x, %x, %x\n", ptr, (ptr & leftmask) >> 2, (ptr & rightmask) << 2);
-    memcpy(buffer+2, &tmp, 2);
+    memcpy(buffer, &tmp, 2);
 }
 
 void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
-    // memcpy(buffer, &(query_message->header), len);
-    buffer_dns_header(buffer, &(query_message->header));
+    memcpy(buffer, &(query_message->header), len);
+    custom_hton4(buffer+2);
     ptr += len;
     
     len = strlen(query_message->question.QNAME) + 1;
@@ -107,24 +105,28 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
 void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     char* ptr = buffer;
     int len = sizeof(answer_message->header);
-    // memcpy(buffer, &(answer_message->header), len);
-    buffer_dns_header(buffer, &(answer_message->header));
+    memcpy(buffer, &(answer_message->header), len);
+    custom_hton4(buffer+2);
     ptr += len;
 
     len = strlen(answer_message->answer.NAME)+1;
     memcpy(ptr, answer_message->answer.NAME, len);
     ptr += len;
 
-    // len = strlen(uint16_t);
-    // uint16_t TYPE = 1, CLASS = 1;
-    // memcpy(ptr, &TYPE, len);
-    // ptr += len;
-    // memcpy(ptr, &CLASS, len);
-    // ptr += len;
+// ====== should have a question filed
+    len = strlen(uint16_t);
+    uint16_t TYPE = 1, CLASS = 1;
 
-    // uint16_t c00c = htons(49164);
-    // memcpy(ptr, &c00c, len);
-    // ptr += len;
+    memcpy(ptr, &TYPE, len);
+    ptr += len;
+
+    memcpy(ptr, &CLASS, len);
+    ptr += len;
+
+    uint16_t c00c = htons(49164);
+    memcpy(ptr, &c00c, len);
+    ptr += len;
+// ====== end
 
     len = sizeof(uint16_t);
     memcpy(ptr, &(answer_message->answer.TYPE), len);
@@ -150,96 +152,125 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 }
 
 void buffer_dns_error(char*buffer, answer_message_t* error_message) {
-    // char* ptr = buffer;
-    // int len = sizeof(error_message->header);
-    // memcpy(buffer, &(error_message->header), len);
-    buffer_dns_header(buffer, &(error_message->header));
+    char* ptr = buffer;
+    int len = sizeof(error_message->header);
+    memcpy(buffer, &(error_message->header), len);
+    custom_hton4(buffer+2);
+    // buffer_dns_header(buffer, &(error_message->header));
 }
+
+answer_message_t* de_buffer_answer(char* buffer) {
+    answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
+    memcpy(&(answer_message->header), buffer, sizeof(dns_header_t));
+    custom_hton4(&(answer_message->header)+2);
+    dns_header_t* header = &(answer_message->header);
+    header->ID = ntohs(header->ID);
+    header->QDCOUNT = ntohs(header->ID);
+
+    resource_record_t* answer = &(answer_message->answer);
+    char* p = buffer + sizeof(answer_message->header);
+
+    int len = strlen(p) + 1;
+    answer->NAME = malloc(len);
+    memcpy(answer->NAME, p, len);
+    p += len + 3; // ignore question type, class and c00c
+
+    len = sizeof(uint16_t);
+    memcpy(&(answer->TYPE), p, sizeof(uint16_t));
+    p += len;
+
+    len = sizeof(uint16_t);
+    memcpy(&(answer->CLASS), p, sizeof(uint16_t));
+    p += len;
+
+    len = sizeof(uint32_t);
+    memcpy(&(answer->TTL), p, sizeof(uint32_t));
+    p += len;
+
+    len = sizeof(uint16_t);
+    memcpy(&(answer->RDLENGTH), p, sizeof(uint16_t));
+    p += len;
+
+    len = sizeof(uint32_t);
+    memcpy(&(answer->RDATA), p, sizeof(uint32_t));
+    p += len;
+
+//    answer->TYPE = ntohs(answer->TYPE);
+//    answer->CLASS = ntohs(answer->CLASS);
+//    answer->TTL = ntohl(answer->TTL);
+//    answer->RDLENGTH = ntohs(answer->RDLENGTH);
+//    answer->RDATA = ntohl(answer->RDATA);
+
+    printf("NAME is %s\n", answer->NAME);
+    printf("TYPE is %d\n", answer->TYPE);
+    printf("CLASS is %d\n", answer->CLASS);
+    printf("TTL is %d\n", answer->TTL);
+    printf("RDLENGTH is %d\n", answer->RDLENGTH);
+    printf("RDATA is %x\n", answer->RDATA);
+
+    return answer_message;
+}
+
 
 
 query_message_t* de_buffer_query(char* buffer) {
     /* start to copy header */
-    char* p = NULL;
     query_message_t* query_message = (query_message_t*)malloc(sizeof(query_message_t));
-    // memcpy(&(query_message->header), buffer, sizeof(dns_header_t));
-    // dns_header_t* header = &(query_message->header);
-    // header->ID = htons(header->ID);
-    // header->QDCOUNT = htons(header->ID);
+    memcpy(&(query_message->header), buffer, sizeof(dns_header_t));
+    custom_hton4(&(query_message->header)+2);
 
-    // /* start to copy question */
-    // p = buffer + sizeof(dns_header_t);
+    dns_header_t* header = &(query_message->header);
+    header->ID = ntohs(header->ID);
+    header->QDCOUNT = ntohs(header->QDCOUNT);
 
-    // dns_question_t* question = &(query_message->question);
-    // int len = strlen(p) + 1;
-    // memcpy(&(question->QNAME), p, len);
-    // p += len;
+    /* start to copy question */
+    char* p = buffer + sizeof(query_message->header);
+    dns_question_t* question = &(query_message->question);
+    int i = 0;
+    for(i=0;i<15;i++){
+        printf("%hhx ", p[i]);
+    }
+    printf("+++++ %hhx,%hhx\n", p[0], p[1]);
 
-    // len = sizeof(uint16_t);
-    // memcpy(&(question->QTYPE), p, sizeof(uint16_t));
-    // p += len;
+    int len = strlen(p) + 1;
+    printf("has a intermediate length of %d\n", len);
+    question->QNAME = malloc(len);
+    memcpy(question->QNAME, p, len);
+    p += len;
 
-    // len = sizeof(uint16_t);
-    // memcpy(&(question->QCLASS), p, sizeof(uint16_t));
-    // p += len;
+    len = sizeof(uint16_t);
+    memcpy(&(question->QTYPE), p, sizeof(uint16_t));
+    p += len;
 
-    // question->NMLENGTH = ntohl(question->NMLENGTH);
-    // question->QTYPE = ntohs(question->QTYPE);
-    // question->QCLASS = ntohs(question->QCLASS);
+    len = sizeof(uint16_t);
+    memcpy(&(question->QCLASS), p, sizeof(uint16_t));
+    p += len;
+
+//    question->QTYPE = ntohs(question->QTYPE);
+//    question->QCLASS = ntohs(question->QCLASS);
+
+
+    printf("QNAME has a length of %d\n", strlen(question->QNAME));
+    printf("QNAME is %s\n", question->QNAME);
+    printf("QTYPE is %hhx\n", question->QTYPE);
+    printf("QCLASS is %hhx\n", question->QCLASS);
+
 
     return query_message;
 }
-answer_message_t* de_buffer_answer(char* buffer) {
-    answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
-    // memcpy(&(answer_message->header), buffer, sizeof(dns_header_t));
-    // dns_header_t* header = &(answer_message->header);
-    // header->ID = htons(header->ID);
-    // header->QDCOUNT = htons(header->ID);
 
-    // resource_record_t* answer = &(answer_message->answer);
-    // char* p = buffer + sizeof(dns_header_t);
-
-    // int len = strlen(p) + 1;
-    // answer->NAME = malloc(len);
-    // memcpy(answer->NAME, p, len);
-    // p += len;
-
-    // memcpy(&(answer->TYPE), p, sizeof(uint16_t));
-    // answer->TYPE = ntohs(answer->TYPE);
-    // p += sizeof(uint16_t);
-
-    // memcpy(&(answer->CLASS), p, sizeof(uint16_t));
-    // answer->CLASS = ntohs(answer->CLASS);
-    // p += sizeof(uint16_t);
-
-    // memcpy(&(answer->TTL), p, sizeof(uint32_t));
-    // answer->TTL = ntohl(answer->TTL);
-    // p += sizeof(uint32_t);
-
-    // memcpy(&(answer->RDLENGTH), p, sizeof(uint16_t));
-    // answer->RDLENGTH = ntohs(answer->RDLENGTH);
-    // p += sizeof(uint16_t);
-
-    // memcpy(&(answer->RDATA), p, sizeof(uint32_t));
-    // answer->RDATA = ntohs(answer->RDATA);
-    // p += sizeof(uint32_t);
-
-    // answer->TYPE = ntohs(answer->TYPE);
-    // answer->CLASS = ntohs(answer->CLASS);
-    // answer->TTL = ntohl(answer->TTL);
-    // answer->RDLENGTH = ntohs(answer->RDLENGTH);
-    // answer->RDATA = ntohl(answer->RDATA);
-
-    return answer_message;
-}
 answer_message_t* de_buffer_error(char* buffer) {
     answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
+    custom_hton4(&(answer_message->header)+2);
     return answer_message;
 }
 
 void encode_domain(char* domain_name, char* res_buf) {
     // video.cs.cmu.edu -> 5video2cs3cmu3edu0
     // 先copy给定的domain name, 因为它是final的时候会cause bus error
+    printf("To be encoded string is %s", domain_name);
     char domain_cpy[4096];
+    memset(domain_cpy, 0, 4096);
     strcpy(domain_cpy, domain_name);
     char* curr_head = domain_cpy;
     char* curr_end = strstr(curr_head, ".");
@@ -272,9 +303,25 @@ void encode_domain(char* domain_name, char* res_buf) {
 }
 
 
-void decode_domain(char* domain_encode , char* res_buf) {
+void decode_domain(char *name, char *des) {
     // 5video2cs3cmu3edu0 -> video.cs.cmu.edu
     // not necessary to be implemented
+    int i = 0, j;
+    char cnt;
+    int len = strlen(name);
+    while (i < len) {
+        cnt = name[i];
+        if (cnt == 0) {
+            des[i - 1] = 0;
+            break;
+        }
+        for (j = 0; j < cnt; j++) {
+            des[i + j] = name[i + j + 1];
+        }
+        des[i + j] = '.';
+        i += cnt + 1;
+    }
+    des[i - 1] = 0;
 }
 
 int add_node(graph_t* graph, char* name, int version) {

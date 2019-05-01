@@ -60,6 +60,26 @@ int resolve(const char *query_name, char* response_ip){
     // char *hello = "Hello from client";
     while(1)
     {
+        // int query_len = strlen(query_message->question.QNAME) + 1 + sizeof(query_message->header) + 4;
+
+        // sendto(client_fd, (const char *)buffer, query_len, 
+        //         MSG_CONFIRM, (const struct sockaddr *) &ser_addr,  
+        //             sizeof(ser_addr)); 
+        // printf("Query message sent.\n");
+
+        // memset(recv_buffer, 0, MAXLINE);
+        // n = recvfrom(client_fd, (char *)recv_buffer, MAXLINE,  
+        //         0, (struct sockaddr *) &ser_addr, 
+        //         &len); 
+        // recv_buffer[n] = '\0'; 
+        // // TODO get response ip and memcpy to response_ip  **cornercase** 
+        // // recv length is shorter than expected
+        // // recv format is invalid
+        // printf("Server : %s\n", recv_buffer); 
+        // printf("S_ip = %s\n", inet_ntoa(ser_addr.sin_addr));
+        // printf("C_ip = %s\n", inet_ntoa(cli_addr.sin_addr));
+        // break;
+
         int query_len = strlen(query_message->question.QNAME) + 1 + sizeof(query_message->header) + 4;
 
         sendto(client_fd, (const char *)buffer, query_len, 
@@ -71,11 +91,20 @@ int resolve(const char *query_name, char* response_ip){
         n = recvfrom(client_fd, (char *)recv_buffer, MAXLINE,  
                 0, (struct sockaddr *) &ser_addr, 
                 &len); 
-        recv_buffer[n] = '\0'; 
-        // TODO get response ip and memcpy to response_ip  **cornercase** 
+        recv_buffer[n] = '\0';
+        printf("receive %d bytes of data\n", n);
+        // TODO get response ip and memcpy to response_ip  **cornercase**
+        answer_message_t* answer_message = de_buffer_answer(recv_buffer);
+        uint32_t ip = answer_message->answer.RDATA;
+        printf("ip: %x\n", ip);
+        struct in_addr ip_addr;
+        ip_addr.s_addr = ip;
+        sprintf(response_ip, "%s",inet_ntoa(ip_addr));
+        printf("receive a ip of %s\n", response_ip);
+        
         // recv length is shorter than expected
         // recv format is invalid
-        printf("Server : %s\n", recv_buffer); 
+        printf("Server : %s\n", recv_buffer);
         printf("S_ip = %s\n", inet_ntoa(ser_addr.sin_addr));
         printf("C_ip = %s\n", inet_ntoa(cli_addr.sin_addr));
         break;

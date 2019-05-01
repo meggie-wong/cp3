@@ -12,17 +12,22 @@ int res_cnt = 0;
 dns_record_t dns_records = {.hostname = "video.cmu.cs.edu",.resolve_cnt = 0, .record_cnt = 0};
 
 void get_query_name(query_message_t* query_message, char * query_name) {
-    decode_domain(query_message->question.QNAME, query_name); 
+    decode_domain(query_message->question.QNAME, query_name);
+    printf("After recover the query name is %s\n", query_name);
 }
 
 char* get_response_ip(char* query_name) {
     char * response_ip;
+    printf("query name is %s\n", query_name);
     if ( method_robin ) {
         if( strcmp(dns_records.hostname, query_name) == 0 ) { // is video.cmu.cs.edu 
             response_ip = dns_records.server_ip[dns_records.resolve_cnt%dns_records.record_cnt];
             dns_records.resolve_cnt ++;
+            printf("is Valid domain name!!!\n");
+            printf("is Valid respond ip at this time is %s\n", response_ip);
             return response_ip;
         } else {
+            printf("is inValid domain name!!!\n");
             return NULL;
         }
     } else {
@@ -30,8 +35,8 @@ char* get_response_ip(char* query_name) {
         printf(" not use robin \n");
 
     }
-}
 
+}
 
 void start_dns_server() {
 	int sockfd; 
@@ -72,14 +77,21 @@ void start_dns_server() {
         int response_len = 0;
         n = recvfrom(sockfd, (char *)buffer, MAXLINE, 
                     MSG_WAITALL, ( struct sockaddr *) &cliaddr, 
-                    &len); 
+                    &len);
+        printf("received %d bytes in start dns server\n", n);
         buffer[n] = '\0'; 
         client_ip = inet_ntoa(cliaddr.sin_addr); 
         query_message_t* query_message = de_buffer_query(buffer);
+        printf("query name is %s after decode\n", query_message->question.QNAME);
+        for (i = 0; i < 15; ++i) {
+            printf("%x ", query_message->question.QNAME[i]);
+        }
+        printf("\n");
         get_query_name(query_message, query_name);
         // strcpy(query_name, "video.cmu.cs.edu");
         printf("Client : %s(ip=%s)\n", query_name, inet_ntoa(cliaddr.sin_addr)); 
-
+        
+        printf("After recover the query name is %s\n", query_message);
         memset(buffer, 0, MAXLINE);
         response_ip = get_response_ip(query_name); 
         if (response_ip != NULL) {
