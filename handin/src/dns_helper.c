@@ -94,7 +94,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     memcpy(buffer, &(answer_message->header), len);
     ptr += len;
 
-    len = strlen(answer_message->answer.NAME);
+    len = strlen(answer_message->answer.NAME)+1;
     memcpy(ptr, answer_message->answer.NAME, len);
     ptr += len;
 
@@ -115,6 +115,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     ptr += len;
 
     len = sizeof(uint32_t);
+    printf("+++++++ %x\n", answer_message->answer.RDATA);
     memcpy(ptr, &(answer_message->answer.RDATA), len);
     ptr += len;
 
