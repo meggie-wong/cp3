@@ -525,7 +525,7 @@ int start_proxying() {
                 else if ((client_idx = add_client(client_fd, clients, &read_set, 0, -1))!= -1) {
                     char response_ip[MAXLINE];
                     memset(response_ip, 0, MAXLINE);
-                    resolve("video.cmu.cs.edu", response_ip);
+                    resolve("video.cs.cmu.edu", response_ip);
                     int sibling_fd = open_socket_to_server(my_ip, response_ip, server_port);
                     int server_idx = add_client(sibling_fd, clients, &read_set, 1, client_idx);
                     clients[client_idx]->sibling_idx = server_idx;
