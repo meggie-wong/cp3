@@ -4,7 +4,10 @@
 int client_fd;
 struct sockaddr_in ser_addr, cli_addr;
 
+char* get_response_ip(char* query_name) {
 
+
+}
 int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
 
     client_fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -42,8 +45,7 @@ int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
     // close(client_fd);
 }
 
-int resolve(const char *query_name, const char *service, 
-            const struct addrinfo *hints, struct addrinfo **res){
+int resolve(const char *query_name, char* response_ip){
 
     // socklen_t len;
     struct sockaddr_in src;
@@ -55,15 +57,12 @@ int resolve(const char *query_name, const char *service,
     query_message_t* query_message = create_query_message(query_name);
     buffer_dns_question(buffer, query_message);
     
-    char *hello = "Hello from client";
+    // char *hello = "Hello from client";
     while(1)
     {
-        int i = 0;
-        for(i = 0; i<strlen(query_message->question.QNAME) + sizeof(query_message)+10; i++) {
-            printf("%d[%c] ", buffer[i], buffer[i]);
-        }
+        int query_len = strlen(query_message->question.QNAME) + 1 + sizeof(query_message->header) + 4;
 
-        sendto(client_fd, (const char *)buffer, strlen(query_message->question.QNAME) + sizeof(query_message), 
+        sendto(client_fd, (const char *)buffer, query_len, 
                 MSG_CONFIRM, (const struct sockaddr *) &ser_addr,  
                     sizeof(ser_addr)); 
         printf("Query message sent.\n");
@@ -73,6 +72,9 @@ int resolve(const char *query_name, const char *service,
                 0, (struct sockaddr *) &ser_addr, 
                 &len); 
         recv_buffer[n] = '\0'; 
+        // TODO get response ip and memcpy to response_ip  **cornercase** 
+        // recv length is shorter than expected
+        // recv format is invalid
         printf("Server : %s\n", recv_buffer); 
         printf("S_ip = %s\n", inet_ntoa(ser_addr.sin_addr));
         printf("C_ip = %s\n", inet_ntoa(cli_addr.sin_addr));

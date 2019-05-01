@@ -12,10 +12,9 @@ int res_cnt = 0;
 dns_record_t dns_records = {.hostname = "video.cmu.cs.edu",.resolve_cnt = 0, .record_cnt = 0};
 
 
-char* get_query_name(char* recv_buffer) {
-    
+void get_query_name(query_message_t* query_message, char * query_name) {
+    decode_domain(query_message->question.QNAME, query_name); 
     return NULL;
-
 }
 
 char* get_response_ip(char* query_name) {
@@ -25,9 +24,11 @@ char* get_response_ip(char* query_name) {
             response_ip = dns_records.server_ip[dns_records.resolve_cnt%dns_records.record_cnt];
             dns_records.resolve_cnt ++;
             return response_ip;
+        } else {
+            return NULL;
         }
-
     } else {
+        // TODO add shortest path
         printf(" not use robin \n");
 
     }
@@ -39,10 +40,10 @@ void start_dns_server() {
     char response[MAXLINE];  
 	struct sockaddr_in servaddr, cliaddr; 
 
-    int len, n; 
+    int len = sizeof(struct sockaddr_in), n; 
     char *response_ip = "3.0.0.1";
     char* client_ip;
-    char* query_name;
+    char query_name[MAXLINE];
     struct timeval now;
 	
 	// Creating socket file descriptor 
@@ -66,20 +67,33 @@ void start_dns_server() {
 		perror("bind failed"); 
 		exit(EXIT_FAILURE); 
 	} 
+
 	while(1) {
-        
+        answer_message_t* answer_message;
+        int response_len = 0;
         n = recvfrom(sockfd, (char *)buffer, MAXLINE, 
                     MSG_WAITALL, ( struct sockaddr *) &cliaddr, 
                     &len); 
         buffer[n] = '\0'; 
         client_ip = inet_ntoa(cliaddr.sin_addr); 
-        query_name = buffer;
+        query_message_t* query_message = de_buffer_query(buffer);
+        get_query_name(query_message, query_name);
+        // strcpy(query_name, "video.cmu.cs.edu");
+        printf("Client : %s(ip=%s)\n", query_name, inet_ntoa(cliaddr.sin_addr)); 
 
-        // query_name = get_query_name(buffer);
-        // response_ip = get_response_ip(query_name);
-
-        printf("Client : %s(ip=%s)\n", buffer, inet_ntoa(cliaddr.sin_addr)); 
-        sendto(sockfd, (const char *)response_ip, strlen(response_ip), 
+        memset(buffer, 0, MAXLINE);
+        response_ip = get_response_ip(query_name); 
+        if (response_ip != NULL) {
+            answer_message = create_answer_message(response_ip, query_name->question.QNAME);
+            buffer_dns_answer(buffer, answer_message);
+            response_len =  strlen(answer_message->answer.NAME) + 1 + sizeof(response->header) + 14;  
+        } else {
+            answer_message = create_error_message(3);
+            buffer_dns_error(buffer, answer_message);
+            response_len = sizeof(response->header);
+        }
+           
+        sendto(sockfd, (const char *)buffer, response_len, 
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
                 len);
         // write DNS log
@@ -126,9 +140,13 @@ int main(int argc, char* argv[]) {
 	while (!feof(fp))									
 	{ 
         dns_records.server_ip[dns_records.record_cnt] = (char*)malloc(MAXLINE*sizeof(char));
-		fgets(dns_records.server_ip[dns_records.record_cnt], MAXLINE, fp);					    
-		printf("read %s\n", dns_records.server_ip[dns_records.record_cnt]);
-		dns_records.record_cnt ++;
+		fgets(dns_records.server_ip[dns_records.record_cnt], MAXLINE, fp);	
+        int len = strlen(dns_records.server_ip[dns_records.record_cnt]);
+        if (len > 0) {
+            dns_records.server_ip[dns_records.record_cnt][len] = '\0'; 
+		    printf("read %s\n", dns_records.server_ip[dns_records.record_cnt]);
+		    dns_records.record_cnt ++;
+        }
 	} 
 	fclose(fp);											//关闭文件
 
@@ -152,6 +170,6 @@ int main(int argc, char* argv[]) {
     // printf("llllll %x\n", answer_message->answer.RDATA);
 
     /* =========== test only =========== */
-    // start_dns_server();
+    start_dns_server();
     return 0;
 }

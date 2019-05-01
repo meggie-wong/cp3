@@ -37,7 +37,6 @@ typedef struct question dns_question_t;
 
 
 struct resource_record {
-    uint32_t NMLENGTH;
     char* NAME;
     uint16_t TYPE;
     uint16_t CLASS;
