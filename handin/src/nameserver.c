@@ -20,7 +20,7 @@ void get_query_name(query_message_t* query_message, char * query_name) {
 char* get_response_ip(char* query_name, char* client_ip) {
     char * response_ip;
     printf("query name (len = %d) is %s\n", strlen(query_name),query_name);
-    printf("record name (len = %d) is %s\n", strlen(dns_records.hostname, dns_records.hostname));
+    printf("record name (len = %d) is %s\n", strlen(dns_records.hostname), dns_records.hostname);
     printf("compare result = %d\n", strcmp(dns_records.hostname, query_name));
     if ( method_robin ) {
         if( strcmp(dns_records.hostname, query_name) == 0 ) { // is video.cmu.cs.edu 
