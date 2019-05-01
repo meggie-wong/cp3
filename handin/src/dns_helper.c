@@ -78,8 +78,8 @@ void buffer_dns_header(char * buffer, dns_header_t* header) {
     memcpy(buffer, header, len);
     for(i = 0; i < 4; i++) {
         it = (uint8_t)ptr[i];
-        lo = ptr & 0x3;
-        hi = ptr & 0xc;
+        lo = it & 0x3;
+        hi = it & 0xc;
         ptr[i] = (lo | hi) & 0xff;
         printf("%x, hi: %x, lo: %x", it, hi, lo);
     }
