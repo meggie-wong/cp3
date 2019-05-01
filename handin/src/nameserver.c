@@ -9,7 +9,7 @@ char* servers_path;
 char* LSAs_path;
 int method_robin = 0;
 int res_cnt = 0;
-dns_record_t dns_records = {.hostname = "video.cmu.cs.edu",.resolve_cnt = 0, .record_cnt = 0};
+dns_record_t dns_records = {.hostname = "video.cs.cmu.edu",.resolve_cnt = 0, .record_cnt = 0};
 graph_t* graph;
 
 void get_query_name(query_message_t* query_message, char * query_name) {
