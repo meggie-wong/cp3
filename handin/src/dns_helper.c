@@ -81,7 +81,7 @@ void buffer_dns_header(char * buffer, dns_header_t* header) {
         lo = it & 0x3;
         hi = it & 0xc;
         ptr[i] = (lo | hi) & 0xff;
-        printf("%x, hi: %x, lo: %x", it, hi, lo);
+        printf("%x, %x, hi: %x, lo: %x\n", ptr[i], it, hi, lo);
     }
 }
 
