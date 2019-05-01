@@ -5,8 +5,7 @@
 #include <netinet/in.h>   
 #include <arpa/inet.h>
 
-#define MAXLINE 4096
-#define MAX_NODE 1024
+
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 

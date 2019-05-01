@@ -8,7 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 #include "dns_helper.h"
-
+#define MAXLINE 4096
+#define MAX_NODE 1024
 /**
  * Initialize your client DNS library with the IP address and port number of
  * your DNS server.
