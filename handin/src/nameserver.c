@@ -83,14 +83,14 @@ void start_dns_server() {
         client_ip = inet_ntoa(cliaddr.sin_addr); 
         query_message_t* query_message = de_buffer_query(buffer);
         printf("query name is %s after decode\n", query_message->question.QNAME);
-        for (i = 0; i < 15; ++i) {
+        for (int i = 0; i < 15; ++i) {
             printf("%x ", query_message->question.QNAME[i]);
         }
         printf("\n");
         get_query_name(query_message, query_name);
         // strcpy(query_name, "video.cmu.cs.edu");
         printf("Client : %s(ip=%s)\n", query_name, inet_ntoa(cliaddr.sin_addr)); 
-        
+
         printf("After recover the query name is %s\n", query_message);
         memset(buffer, 0, MAXLINE);
         response_ip = get_response_ip(query_name); 
