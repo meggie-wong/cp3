@@ -179,6 +179,7 @@ int main(int argc, char* argv[]) {
     printf("end query=============\n");
     char * response_ip = "155.33.17.68";
     answer_message_t* answer_message = create_answer_message(response_ip, query_name);
+    printf("rdate %x\n",answer_message->answer.RDATA);
     buffer_dns_answer(buffer, answer_message);
     for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 15; i++) {
         // printf("%hhx ",buffer[i]);
