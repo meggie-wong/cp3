@@ -71,18 +71,13 @@ answer_message_t* create_error_message(int error) {
 }
 
 void buffer_dns_header(char * buffer, dns_header_t* header) {
-    char* ptr = buffer + 4;
-    int i = 0;
-    uint8_t hi = 0, lo = 0, it;
+    uint16_t ptr = (uint16_t)(buffer + 2);
     int len = sizeof(*header);
     memcpy(buffer, header, len);
-    for(i = 0; i < 4; i++) {
-        it = (uint8_t)ptr[i];
-        lo = it & 0x3;
-        hi = it & 0xc;
-        ptr[i] = (lo | hi) & 0xff;
-        printf("%x, %x, hi: %x, lo: %x\n", ptr[i], it, hi, lo);
-    }
+    uint16_t leftmask = 0b1100110011001100;
+    uint16_t rightmask = 0x0011001100110011;
+    ptr = (ptr & leftmask >> 2) | (ptr & rightmask << 2);
+    memcpy(buffer+2, &ptr, 2);
 }
 
 void buffer_dns_question(char*buffer, query_message_t* query_message) {
