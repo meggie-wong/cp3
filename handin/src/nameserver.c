@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
     buffer_dns_answer(buffer, answer_message);
     int i = 0;
     for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 15; i++) {
-        printf("%x ",buffer[i]);
+        printf("%x ",buffer[i] & 0xff);
         // printf("%d: %x[%c]\t||\t", i, buffer[i], buffer[i]);
     }
     // answer_message = de_buffer_response(buffer);
