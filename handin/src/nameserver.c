@@ -90,7 +90,7 @@ void start_dns_server() {
         } else {
             answer_message = create_error_message(3);
             buffer_dns_error(buffer, answer_message);
-            response_len = sizeof(response->header);
+            response_len = sizeof(answer_message->header);
         }
            
         sendto(sockfd, (const char *)buffer, response_len, 
