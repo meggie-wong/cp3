@@ -88,3 +88,6 @@ answer_message_t* create_error_message(int error);
 void buffer_dns_question(char*buffer, query_message_t* query_message);
 void buffer_dns_answer(char*buffer, answer_message_t* answer_message);
 void buffer_dns_error(char*buffer, answer_message_t* error_message);
+query_message_t* de_buffer_query(char* buffer);
+answer_message_t* de_buffer_answer(char* buffer);
+answer_message_t* de_buffer_error(char* buffer);

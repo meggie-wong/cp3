@@ -126,6 +126,86 @@ void buffer_dns_error(char*buffer, answer_message_t* error_message) {
     memcpy(buffer, &(error_message->header), len);
 }
 
+
+query_message_t* de_buffer_query(char* buffer) {
+    /* start to copy header */
+    char* p = NULL;
+    query_message_t* query_message = (query_message_t*)malloc(sizeof(query_message_t));
+    // memcpy(&(query_message->header), buffer, sizeof(dns_header_t));
+    // dns_header_t* header = &(query_message->header);
+    // header->ID = htons(header->ID);
+    // header->QDCOUNT = htons(header->ID);
+
+    // /* start to copy question */
+    // p = buffer + sizeof(dns_header_t);
+
+    // dns_question_t* question = &(query_message->question);
+    // int len = strlen(p) + 1;
+    // memcpy(&(question->QNAME), p, len);
+    // p += len;
+
+    // len = sizeof(uint16_t);
+    // memcpy(&(question->QTYPE), p, sizeof(uint16_t));
+    // p += len;
+
+    // len = sizeof(uint16_t);
+    // memcpy(&(question->QCLASS), p, sizeof(uint16_t));
+    // p += len;
+
+    // question->NMLENGTH = ntohl(question->NMLENGTH);
+    // question->QTYPE = ntohs(question->QTYPE);
+    // question->QCLASS = ntohs(question->QCLASS);
+
+    return query_message;
+}
+answer_message_t* de_buffer_answer(char* buffer) {
+    answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
+    // memcpy(&(answer_message->header), buffer, sizeof(dns_header_t));
+    // dns_header_t* header = &(answer_message->header);
+    // header->ID = htons(header->ID);
+    // header->QDCOUNT = htons(header->ID);
+
+    // resource_record_t* answer = &(answer_message->answer);
+    // char* p = buffer + sizeof(dns_header_t);
+
+    // int len = strlen(p) + 1;
+    // answer->NAME = malloc(len);
+    // memcpy(answer->NAME, p, len);
+    // p += len;
+
+    // memcpy(&(answer->TYPE), p, sizeof(uint16_t));
+    // answer->TYPE = ntohs(answer->TYPE);
+    // p += sizeof(uint16_t);
+
+    // memcpy(&(answer->CLASS), p, sizeof(uint16_t));
+    // answer->CLASS = ntohs(answer->CLASS);
+    // p += sizeof(uint16_t);
+
+    // memcpy(&(answer->TTL), p, sizeof(uint32_t));
+    // answer->TTL = ntohl(answer->TTL);
+    // p += sizeof(uint32_t);
+
+    // memcpy(&(answer->RDLENGTH), p, sizeof(uint16_t));
+    // answer->RDLENGTH = ntohs(answer->RDLENGTH);
+    // p += sizeof(uint16_t);
+
+    // memcpy(&(answer->RDATA), p, sizeof(uint32_t));
+    // answer->RDATA = ntohs(answer->RDATA);
+    // p += sizeof(uint32_t);
+
+    // answer->TYPE = ntohs(answer->TYPE);
+    // answer->CLASS = ntohs(answer->CLASS);
+    // answer->TTL = ntohl(answer->TTL);
+    // answer->RDLENGTH = ntohs(answer->RDLENGTH);
+    // answer->RDATA = ntohl(answer->RDATA);
+
+    return answer_message;
+}
+answer_message_t* de_buffer_error(char* buffer) {
+    answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
+    return answer_message;
+}
+
 void encode_domain(char* domain_name, char* res_buf) {
     // video.cs.cmu.edu -> 5video2cs3cmu3edu0
     // 先copy给定的domain name, 因为它是final的时候会cause bus error
