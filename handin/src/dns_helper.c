@@ -154,7 +154,7 @@ void buffer_dns_error(char*buffer, answer_message_t* error_message) {
     // char* ptr = buffer;
     // int len = sizeof(error_message->header);
     // memcpy(buffer, &(error_message->header), len);
-    buffer_dns_header(buffer, &(answer_message->header));
+    buffer_dns_header(buffer, &(error_message->header));
 }
 
 
