@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
     for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header) + 5; i++) {
         // printf("%hhx ",buffer[i]);
         printf("%hhx[%c]", buffer[i], buffer[i]);
-        if(i == 12) printf("\n");
+        if(i == 11) printf("\n");
     }
 
     char * response_ip = "155.33.17.68";
