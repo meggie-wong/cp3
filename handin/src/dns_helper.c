@@ -73,7 +73,7 @@ answer_message_t* create_error_message(int error) {
 void buffer_dns_header(char * buffer, dns_header_t* header) {
     char* ptr = buffer + 4;
     int i = 0;
-    char hi = '\0', lo = '\0', it;
+    uint8_t hi = 0, lo = 0, it;
     int len = sizeof(query_message->header);
     memcpy(buffer, header, len);
     for(i = 0; i < 4; i++) {
