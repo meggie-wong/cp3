@@ -71,9 +71,10 @@ answer_message_t* create_error_message(int error) {
 }
 
 void buffer_dns_header(char * buffer, dns_header_t* header) {
-    printf("+++++++%x, %x\n", buffer[2], buffer[3]);
+    
     int len = sizeof(*header);
     memcpy(buffer, header, len);
+    printf("+++++++%x, %x\n", buffer[2], buffer[3]);
     // uint16_t* ptr = buffer + 2;
     uint16_t ptr = *(buffer + 2);
     uint16_t leftmask = 0b1100110011001100;
