@@ -124,6 +124,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     memcpy(test, &ip, 4);
     test[len] = '\0';
     printf("++111+++ %x %x %x %x\n", test[0], test[1],test[2], test[3]);
+    printf("++222+++ %x\n", (uint32_t) test);
 
 
     memcpy(ptr, &ip, len);
