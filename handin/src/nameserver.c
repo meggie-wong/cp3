@@ -189,6 +189,6 @@ int main(int argc, char* argv[]) {
     // printf("llllll %x\n", answer_message->answer.RDATA);
 
     /* =========== test only =========== */
-    // start_dns_server();
+    start_dns_server();
     return 0;
 }
