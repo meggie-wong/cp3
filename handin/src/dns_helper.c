@@ -80,7 +80,7 @@ void buffer_dns_header(char * buffer, dns_header_t* header) {
     uint16_t leftmask = 0b1100110011001100;
     uint16_t rightmask = 0x0011001100110011;
     uint16_t tmp = ((ptr & leftmask) >> 2) | ((ptr & rightmask) << 2);
-    printf("%x, %x, %x\n", ptr, ptr & leftmask >> 2, ptr & rightmask << 2);
+    printf("%x, %x, %x\n", ptr, (ptr & leftmask) >> 2, (ptr & rightmask) << 2);
     memcpy(buffer+2, &tmp, 2);
 }
 
