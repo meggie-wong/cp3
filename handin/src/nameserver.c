@@ -148,8 +148,8 @@ int main(int argc, char* argv[]) {
         printf("%x ",buffer[i]);
         // printf("%d: %x[%c]\t||\t", i, buffer[i], buffer[i]);
     }
-    answer_message = de_buffer_response(buffer);
-    printf("llllll %x\n", answer_message->answer.RDATA);
+    // answer_message = de_buffer_response(buffer);
+    // printf("llllll %x\n", answer_message->answer.RDATA);
 
     /* =========== test only =========== */
     // start_dns_server();
