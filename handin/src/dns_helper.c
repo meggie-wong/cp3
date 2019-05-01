@@ -70,10 +70,26 @@ answer_message_t* create_error_message(int error) {
     return answer_message;
 }
 
+void buffer_dns_header(char * buffer, dns_header_t* header) {
+    char* ptr = buffer + 4;
+    int i = 0;
+    char hi = '\0', lo = '\0', it;
+    int len = sizeof(query_message->header);
+    memcpy(buffer, header, len);
+    for(i = 0; i < 4; i++) {
+        it = ptr[i];
+        lo = ptr & 0x3;
+        hi = ptr & 0xc;
+        ptr[i] = (lo | hi) & 0xff;
+        printf("%x, hi: %x, lo: %x", it, hi, lo);
+    }
+}
+
 void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
-    memcpy(buffer, &(query_message->header), len);
+    // memcpy(buffer, &(query_message->header), len);
+    buffer_dns_header(buffer, &(query_message->header));
     ptr += len;
     
     len = strlen(query_message->question.QNAME) + 1;
@@ -92,7 +108,8 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
 void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     char* ptr = buffer;
     int len = sizeof(answer_message->header);
-    memcpy(buffer, &(answer_message->header), len);
+    // memcpy(buffer, &(answer_message->header), len);
+    buffer_dns_header(buffer, &(answer_message->header));
     ptr += len;
 
     len = strlen(answer_message->answer.NAME)+1;
@@ -134,9 +151,10 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 }
 
 void buffer_dns_error(char*buffer, answer_message_t* error_message) {
-    char* ptr = buffer;
-    int len = sizeof(error_message->header);
-    memcpy(buffer, &(error_message->header), len);
+    // char* ptr = buffer;
+    // int len = sizeof(error_message->header);
+    // memcpy(buffer, &(error_message->header), len);
+    buffer_dns_header(buffer, &(answer_message->header));
 }
 
 
