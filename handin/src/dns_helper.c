@@ -74,10 +74,10 @@ void buffer_dns_header(char * buffer, dns_header_t* header) {
     char* ptr = buffer + 4;
     int i = 0;
     uint8_t hi = 0, lo = 0, it;
-    int len = sizeof(query_message->header);
+    int len = sizeof(*header);
     memcpy(buffer, header, len);
     for(i = 0; i < 4; i++) {
-        it = ptr[i];
+        it = (uint8_t)ptr[i];
         lo = ptr & 0x3;
         hi = ptr & 0xc;
         ptr[i] = (lo | hi) & 0xff;
