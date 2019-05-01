@@ -114,7 +114,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     ptr += len;
 
 // ====== should have a question filed
-    len = strlen(uint16_t);
+    len = sizeof(uint16_t);
     uint16_t TYPE = 1, CLASS = 1;
 
     memcpy(ptr, &TYPE, len);
@@ -162,7 +162,7 @@ void buffer_dns_error(char*buffer, answer_message_t* error_message) {
 answer_message_t* de_buffer_answer(char* buffer) {
     answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
     memcpy(&(answer_message->header), buffer, sizeof(dns_header_t));
-    custom_hton4(&(answer_message->header)+2);
+    custom_hton4((char*)&(answer_message->header)+2);
     dns_header_t* header = &(answer_message->header);
     header->ID = ntohs(header->ID);
     header->QDCOUNT = ntohs(header->ID);
@@ -216,7 +216,7 @@ answer_message_t* de_buffer_answer(char* buffer) {
 query_message_t* de_buffer_query(char* buffer) {
     /* start to copy header */
     query_message_t* query_message = (query_message_t*)malloc(sizeof(query_message_t));
-    memcpy(&(query_message->header), buffer, sizeof(dns_header_t));
+    memcpy((char*)&(query_message->header), buffer, sizeof(dns_header_t));
     custom_hton4(&(query_message->header)+2);
 
     dns_header_t* header = &(query_message->header);
@@ -261,7 +261,7 @@ query_message_t* de_buffer_query(char* buffer) {
 
 answer_message_t* de_buffer_error(char* buffer) {
     answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
-    custom_hton4(&(answer_message->header)+2);
+    custom_hton4((char*)&(answer_message->header)+2);
     return answer_message;
 }
 
