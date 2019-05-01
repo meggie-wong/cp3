@@ -3,6 +3,15 @@
 int client_fd;
 struct sockaddr_in ser_addr, cli_addr;
 
+/**
+ * @brief      Gets the response ip.
+ *
+ * @param      recv_buf     The receive buffer
+ * @param[in]  n            The number of bytes recvived in buffer
+ * @param      response_ip  The response ip
+ *
+ * @return     The response ip.
+ */
 char* get_response_ip(char* recv_buf, int n, char* response_ip) {
     answer_message_t* answer_message = de_buffer_answer(recv_buf);
     uint32_t ip = answer_message->answer.RDATA;
@@ -14,6 +23,15 @@ char* get_response_ip(char* recv_buf, int n, char* response_ip) {
     // TODO 完整性检验
     return response_ip;
 }
+/**
+ * @brief      Initialize the DNS cofiguration
+ *
+ * @param[in]  dns_ip    The dns ip
+ * @param[in]  dns_port  The dns port
+ * @param[in]  fake_ip   The fake ip
+ *
+ * @return     Success 0; Otherwise fail 
+ */
 int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
 
     client_fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -49,11 +67,19 @@ int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
     ser_addr.sin_port = htons(dns_port); 
     bzero(&ser_addr.sin_zero,8);
     // close(client_fd);
+    return 0;
 }
 
+/**
+ * @brief      resolve a query host name and store it in response_ip
+ *
+ * @param[in]  query_name   The query name
+ * @param      response_ip  The response ip
+ *
+ * @return     successful or not
+ */
 int resolve(const char *query_name, char* response_ip){
 
-    // socklen_t len;
     struct sockaddr_in src;
     int n, len; 
     char buffer[MAXLINE]; 
@@ -63,29 +89,8 @@ int resolve(const char *query_name, char* response_ip){
     query_message_t* query_message = create_query_message(query_name);
     buffer_dns_question(buffer, query_message);
     
-    // char *hello = "Hello from client";
     while(1)
     {
-        // int query_len = strlen(query_message->question.QNAME) + 1 + sizeof(query_message->header) + 4;
-
-        // sendto(client_fd, (const char *)buffer, query_len, 
-        //         MSG_CONFIRM, (const struct sockaddr *) &ser_addr,  
-        //             sizeof(ser_addr)); 
-        // printf("Query message sent.\n");
-
-        // memset(recv_buffer, 0, MAXLINE);
-        // n = recvfrom(client_fd, (char *)recv_buffer, MAXLINE,  
-        //         0, (struct sockaddr *) &ser_addr, 
-        //         &len); 
-        // recv_buffer[n] = '\0'; 
-        // // TODO get response ip and memcpy to response_ip  **cornercase** 
-        // // recv length is shorter than expected
-        // // recv format is invalid
-        // printf("Server : %s\n", recv_buffer); 
-        // printf("S_ip = %s\n", inet_ntoa(ser_addr.sin_addr));
-        // printf("C_ip = %s\n", inet_ntoa(cli_addr.sin_addr));
-        // break;
-
         int query_len = strlen(query_message->question.QNAME) + 1 + sizeof(query_message->header) + 4;
 
         sendto(client_fd, (const char *)buffer, query_len, 
@@ -103,7 +108,6 @@ int resolve(const char *query_name, char* response_ip){
         answer_message_t* answer_message = de_buffer_answer(recv_buffer);
         uint32_t ip = htonl(answer_message->answer.RDATA);
 
-        printf("get ip: %x\n", ip);
         struct in_addr ip_addr;
         ip_addr.s_addr = ip;
         sprintf(response_ip, "%s",inet_ntoa(ip_addr));

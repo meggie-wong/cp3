@@ -5,6 +5,13 @@
 #include "dns_helper.h"
 
 
+/**
+ * @brief      Creates a header.
+ *
+ * @param      header  The header
+ *
+ * @return     The dns header
+ */
 dns_header_t* create_header(dns_header_t* header) {
     uint16_t id = 1377;
     header->ID = htons(id);
@@ -23,6 +30,13 @@ dns_header_t* create_header(dns_header_t* header) {
     return header;
 }
 
+/**
+ * @brief      Creates a query message.
+ *
+ * @param      query_name  The query name
+ *
+ * @return     The query message
+ */
 query_message_t* create_query_message(char* query_name) {
     query_message_t* query_message;
     char encode_name[MAXLINE];
@@ -42,6 +56,14 @@ query_message_t* create_query_message(char* query_name) {
     return query_message;
 }
 
+/**
+ * @brief      Creates an answer message.
+ *
+ * @param      response_ip    The response ip
+ * @param      query_message  The query message
+ *
+ * @return     The answer message
+ */
 answer_message_t* create_answer_message(char* response_ip, query_message_t* query_message) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
     dns_header_t* header = create_header(&(answer_message->header));
@@ -56,13 +78,18 @@ answer_message_t* create_answer_message(char* response_ip, query_message_t* quer
     answer_message->answer.TTL = htonl(0);
     answer_message->answer.RDLENGTH = htons(4);
     answer_message->answer.RDATA = (uint32_t)inet_addr(response_ip);
-    // struct in_addr ip;
-    // inet_aton(response_ip, &ip);   /* 将字符串转换为二进制 */
-    // uint32_t s_ip = ip.s_addr;
-    // answer_message->answer.RDATA = htonl(s_ip);
+
     return answer_message;
 }
 
+/**
+ * @brief      Creates an error message.
+ *
+ * @param[in]  error          The error
+ * @param      query_message  The query message
+ *
+ * @return     THe error message
+ */
 answer_message_t* create_error_message(int error, query_message_t* query_message) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
     dns_header_t* header = create_header(&(answer_message->header));
@@ -74,9 +101,12 @@ answer_message_t* create_error_message(int error, query_message_t* query_message
     return answer_message;
 }
 
+/**
+ * @brief      Custmer funtion to adjust the order of the uint4 to network seq
+ *
+ * @param      buffer  The buffer
+ */
 void custom_hton4(char * buffer) {
-    // int len = sizeof(*header);
-    // memcpy(buffer, header, len);
     uint16_t ptr = *buffer;
     uint16_t leftmask = 0b1100110011001100;
     uint16_t rightmask = 0b0011001100110011;
@@ -84,6 +114,12 @@ void custom_hton4(char * buffer) {
     memcpy(buffer, &tmp, 2);
 }
 
+/**
+ * @brief      put the question into buffer
+ *
+ * @param      buffer         The buffer
+ * @param      query_message  The query message
+ */
 void buffer_dns_question(char*buffer, query_message_t* query_message) {
     char* ptr = buffer;
     int len = sizeof(query_message->header);
@@ -104,6 +140,12 @@ void buffer_dns_question(char*buffer, query_message_t* query_message) {
     ptr += len;
 }
 
+/**
+ * @brief      put the answer into buffer
+ *
+ * @param      buffer          The buffer
+ * @param      answer_message  The answer message
+ */
 void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     char* ptr = buffer;
     int len = sizeof(answer_message->header);
@@ -115,7 +157,6 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     memcpy(ptr, answer_message->answer.NAME, len);
     ptr += len;
 
-// ====== should have a question filed
     len = sizeof(uint16_t);
     uint16_t TYPE = htons(1), CLASS = htons(1);
 
@@ -128,7 +169,6 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     uint16_t c00c = htons(49164);
     memcpy(ptr, &c00c, len);
     ptr += len;
-// ====== end
 
     len = sizeof(uint16_t);
     memcpy(ptr, &(answer_message->answer.TYPE), len);
@@ -148,27 +188,31 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 
     len = sizeof(uint32_t);
     uint32_t ip = answer_message->answer.RDATA;
-    // printf("ip = %x  %d\n", ip, len);
     memcpy(ptr, &ip, len);
-    // printf("%x, %x, %x, %x", ptr[0], ptr[1], ptr[2], ptr[3]);
     ptr += len;
-    int i = 0;
-    for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 21; i++) {
-        // printf("%hhx ",buffer[i]);
-        printf("%hhx[%c] ", buffer[i], buffer[i]);
-    }
-    printf("=======END\n");
 
 }
 
+/**
+ * @brief      Put the error response into buffer
+ *
+ * @param      buffer         The buffer
+ * @param      error_message  The error message
+ */
 void buffer_dns_error(char*buffer, answer_message_t* error_message) {
     char* ptr = buffer;
     int len = sizeof(error_message->header);
     memcpy(buffer, &(error_message->header), len);
     custom_hton4(buffer+2);
-    // buffer_dns_header(buffer, &(error_message->header));
 }
 
+/**
+ * @brief      parse out the answer from buffer
+ *
+ * @param      buffer  The buffer
+ *
+ * @return     { description_of_the_return_value }
+ */
 answer_message_t* de_buffer_answer(char* buffer) {
     answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
     memcpy(&(answer_message->header), buffer, sizeof(dns_header_t));
@@ -181,27 +225,21 @@ answer_message_t* de_buffer_answer(char* buffer) {
     char* p = buffer + sizeof(answer_message->header);
     
     int len = strlen(p) + 1;
-    // printf("read %d name %s \n",len, p);
     answer->NAME = malloc(len);
     memcpy(answer->NAME, p, len);
     p += len + 6; // ignore question type, class and c00c
-    // printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->TYPE), p, sizeof(uint16_t));
     p += len;
-    // printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->CLASS), p, sizeof(uint16_t));
     p += len;
-    // printf("read answer %d\n",*p);
     len = sizeof(uint32_t);
     memcpy(&(answer->TTL), p, sizeof(uint32_t));
     p += len;
-    // printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->RDLENGTH), p, sizeof(uint16_t));
     p += len;
-    // printf("read rdate %d\n",*p);
     len = sizeof(uint32_t);
     memcpy(&(answer->RDATA), p, sizeof(uint32_t));
     p += len;
@@ -222,8 +260,13 @@ answer_message_t* de_buffer_answer(char* buffer) {
     return answer_message;
 }
 
-
-
+/**
+ * @brief      Parse out the query from buffer
+ *
+ * @param      buffer  The buffer
+ *
+ * @return     The query message
+ */
 query_message_t* de_buffer_query(char* buffer) {
     /* start to copy header */
     query_message_t* query_message = (query_message_t*)malloc(sizeof(query_message_t));
@@ -239,7 +282,6 @@ query_message_t* de_buffer_query(char* buffer) {
     dns_question_t* question = &(query_message->question);
 
     int len = strlen(p) + 1;
-    printf("has a intermediate length of %d\n", len);
     question->QNAME = malloc(len);
     memcpy(question->QNAME, p, len);
     p += len;
@@ -263,15 +305,27 @@ query_message_t* de_buffer_query(char* buffer) {
     return query_message;
 }
 
+/**
+ * @brief      Parse out the error from buffer
+ *
+ * @param      buffer  The buffer
+ *
+ * @return     The error message
+ */
 answer_message_t* de_buffer_error(char* buffer) {
     answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
     custom_hton4((char*)&(answer_message->header)+2);
     return answer_message;
 }
 
+/**
+ * @brief      Encode the hostname 
+ *
+ * @param      domain_name  The domain name
+ * @param      res_buf      The resource buffer
+ */
 void encode_domain(char* domain_name, char* res_buf) {
     // video.cs.cmu.edu -> 5video2cs3cmu3edu0
-    // 先copy给定的domain name, 因为它是final的时候会cause bus error
     printf("To be encoded string is %s", domain_name);
     char domain_cpy[4096];
     memset(domain_cpy, 0, 4096);
@@ -279,22 +333,16 @@ void encode_domain(char* domain_name, char* res_buf) {
     char* curr_head = domain_cpy;
     char* curr_end = strstr(curr_head, ".");
     while (curr_end != NULL) {
-        // 将.暂时设为\0
         *curr_end = '\0';
-        // 把int整形转换为字符串
         char num_str[10];
         memset(num_str, 0, 10);
         sprintf(num_str, "%c", (int)strlen(curr_head));
-        // 把数字append上去
         strcat(res_buf, num_str);
-        // 把原内容append上去
         strcat(res_buf, curr_head);
-        // 把原地址改变的0设置回去
         *curr_end = '.';
         curr_head = curr_end + 1;
         curr_end = strstr(curr_head, ".");
     }
-    // 最后一个循环找不到'.'，手动append剩下的内容
     char num_str[10];
     memset(num_str, 0, 10);
     sprintf(num_str, "%c", (int)strlen(curr_head));
@@ -307,9 +355,14 @@ void encode_domain(char* domain_name, char* res_buf) {
 }
 
 
+/**
+ * @brief      Decode the hostname
+ *
+ * @param      name  The name
+ * @param      des   The description
+ */
 void decode_domain(char *name, char *des) {
     // 5video2cs3cmu3edu0 -> video.cs.cmu.edu
-    // not necessary to be implemented
     int i = 0, j;
     char cnt;
     int len = strlen(name);
@@ -328,6 +381,12 @@ void decode_domain(char *name, char *des) {
     des[i - 1] = 0;
 }
 
+/**
+ * @brief      Reads a servers ip.
+ *
+ * @param      servers_ip_file  The servers ip file
+ * @param      graph            The graph
+ */
 void read_servers_ip(char* servers_ip_file, graph_t* graph) {
     FILE* file = fopen(servers_ip_file, "r");
     char line[MAXLINE];
@@ -339,13 +398,20 @@ void read_servers_ip(char* servers_ip_file, graph_t* graph) {
     while (fgets(line, MAXLINE, file)) {
         int len = strlen(line);
         line[len - 1] = '\0';
-        // graph->servers[count] = malloc(strlen(line) + 1);
         printf("One of the server is %s\n", line);
         strcpy(graph->servers[count++], line);
     }
     graph->server_num = count;
 }
 
+/**
+ * @brief      Determines if server.
+ *
+ * @param      name   The name
+ * @param      graph  The graph
+ *
+ * @return     True if server, False otherwise.
+ */
 int is_server(char* name, graph_t* graph) {
     int i;
     for (i = 0; i < graph->server_num; ++i) {
@@ -356,7 +422,15 @@ int is_server(char* name, graph_t* graph) {
     return 0;
 }
 
-
+/**
+ * @brief      Adds a node.
+ *
+ * @param      graph    The graph
+ * @param      name     The name
+ * @param[in]  version  The version
+ *
+ * @return     { description_of_the_return_value }
+ */
 int add_node(graph_t* graph, char* name, int version) {
     graph_node_t* curr_node = &(graph->nodes[graph->size]);
     curr_node->name = malloc(MAXLINE);
@@ -367,6 +441,15 @@ int add_node(graph_t* graph, char* name, int version) {
     return graph->size - 1;
 }
 
+/**
+ * @brief      FInd the node 
+ *
+ * @param      graph       The graph
+ * @param      name        The name
+ * @param[in]  create_new  The create new
+ *
+ * @return     The index of the node
+ */
 int find_node(graph_t* graph, char* name, int create_new) {
     int i;
     for (i = 0; i < graph->size; ++i) {
@@ -380,6 +463,12 @@ int find_node(graph_t* graph, char* name, int create_new) {
     return -1;
 }
 
+/**
+ * @brief      print a node
+ *
+ * @param      graph  The graph
+ * @param      node   The node
+ */
 void print_node(graph_t* graph, graph_node_t* node) {
     int i;
     printf("Current node is %s\n", node->name);
@@ -388,6 +477,11 @@ void print_node(graph_t* graph, graph_node_t* node) {
     }
 }
 
+/**
+ * @brief      print the graph
+ *
+ * @param      graph  The graph
+ */
 void print_graph(graph_t* graph) {
     int i;
     printf("%s\n", "--------------------------");
@@ -396,6 +490,12 @@ void print_graph(graph_t* graph) {
     }
 }
 
+/**
+ * @brief      Reads a lsa.
+ *
+ * @param      lsa_path  The lsa path
+ * @param      graph     The graph
+ */
 void read_LSA(char* lsa_path, graph_t* graph) {
     FILE* file = fopen(lsa_path, "r");
     char* head_of_line = NULL;
@@ -425,7 +525,6 @@ void read_LSA(char* lsa_path, graph_t* graph) {
         p = strtok(NULL, " ");
         seq = atoi(p);
 
-        // printf("Current sequence number %d start node is %s\n", seq, name);
         idx = find_node(graph, name, 1);
         curr_node = &(graph->nodes[idx]);
         if (curr_node->version > seq) {
@@ -449,6 +548,13 @@ void read_LSA(char* lsa_path, graph_t* graph) {
 }
 
 
+/**
+ * @brief      Conducting bfs
+ *
+ * @param      graph            The graph
+ * @param      client           The client
+ * @param      resolved_server  The resolved server
+ */
 void bfs(graph_t* graph, char* client, char* resolved_server) {
     int is_visited[graph->size];
     int path[graph->size];
@@ -482,6 +588,13 @@ void bfs(graph_t* graph, char* client, char* resolved_server) {
 }
 
 
+/**
+ * @brief      Conducting dijkstra
+ *
+ * @param      graph            The graph
+ * @param      client           The client
+ * @param      resolved_server  The resolved server
+ */
 void dijkstra(graph_t* graph, char* client, char* resolved_server) {
     int cost[graph->size][graph->size];
     int is_visited[graph->size];
@@ -544,14 +657,3 @@ void dijkstra(graph_t* graph, char* client, char* resolved_server) {
         }
     }
 }
-
-
-// int main() {
-// //    char res[100];
-// //    memset(res, 0, 100);
-// //    encode_domain("video.cs.cmu.edu", res);
-// //    printf("%s\n", res);
-
-//     read_LSA("topo2.lsa");
-//     return 0;
-// }

@@ -22,6 +22,13 @@ char* dns_ip;
 int dns_port;
 char* www_ip;
 
+/**
+ * @brief      create a chunk node
+ *
+ * @param      request  The request
+ *
+ * @return     The chunk node
+ */
 chunk_node_t* creat_chunk_node(char* request) {
     int bitrate = 0;
     chunk_node_t* chunk_node = (chunk_node_t*)malloc(sizeof(chunk_node_t));
@@ -32,6 +39,13 @@ chunk_node_t* creat_chunk_node(char* request) {
     return chunk_node;
 }
 
+/**
+ * @brief      Pushes a chunk into queue.
+ *
+ * @param      clients     The clients
+ * @param[in]  i           The index of the client
+ * @param      chunk_node  The chunk node
+ */
 void push_chunk_into_queue(client **clients, size_t i, chunk_node_t* chunk_node) {
     if (clients[i]->send_queue_tail == NULL) {
         clients[i]->send_queue_head = chunk_node;
@@ -43,6 +57,12 @@ void push_chunk_into_queue(client **clients, size_t i, chunk_node_t* chunk_node)
     return;
 }
 
+/**
+ * @brief      Pop the chunk from the queue
+ *
+ * @param      clients  The clients
+ * @param[in]  i        The index of the client
+ */
 void pop_chunk_from_queue(client **clients, size_t i) {
 
     if (clients[i]->send_queue_head == NULL) {
@@ -56,6 +76,15 @@ void pop_chunk_from_queue(client **clients, size_t i) {
     }
 }
 
+/**
+ * @brief      Handler for chunk request
+ *
+ * @param      clients  The clients
+ * @param[in]  i        The index of the client
+ * @param      request  The request
+ *
+ * @return     The new request after proxy
+ */
 char* chunk_request_handler(client **clients, size_t i, char * request) {
     struct timeval now, time_elapse;
     char *ptr;
@@ -91,7 +120,8 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
     *ptr = '\0';
     strcpy(new_request, request);
 
-    printf("[*]parse: %s, %lu, %d, %d, %d\n", new_request, strlen(new_request), bitrate, chunk_node->seg, chunk_node->frag);
+    printf("[*]parse: %s, %lu, %d, %d, %d\n", new_request, strlen(new_request), 
+        bitrate, chunk_node->seg, chunk_node->frag);
     printf("clients[i]->number_of_rates = %d\n", clients[i]->number_of_rates);
     // find the fit bitrate
     if (cur_throughput == 0) {
@@ -125,21 +155,24 @@ char* chunk_request_handler(client **clients, size_t i, char * request) {
     printf("%s\n%s\n", buf, new_request);
     strcat(new_request, buf);
     strcat(new_request, others);
-    // sprintf(new_request+strlen(new_request),"%dSeg%d-Frag%d", bitrate, chunk_node->seg, chunk_node->frag);
 
     free(request);
     return new_request;
 }
 
 /*
- *  @REQUIRES:
- *  client_fd: The fd of the client you want to add
- *  is_server: A flag to tell us whether this client is a server or a requester
- *  sibling_idx: For a server it will be its client, for a client it will be its server
- *  
- *  @ENSURES: returns a pointer to a new client struct
+ * @REQUIRES: client_fd: The fd of the client you want to add is_server: A flag
+ * to tell us whether this client is a server or a requester sibling_idx: For a
+ * server it will be its client, for a client it will be its server
  *
-*/
+ * @ENSURES: returns a pointer to a new client struct
+ *
+ * @param[in]  client_fd    The client fd
+ * @param[in]  is_server    Indicates if server
+ * @param[in]  sibling_idx  The sibling index
+ *
+ * @return     A new client struct pointer
+ */
 client *new_client(int client_fd, int is_server, size_t sibling_idx) {
     client *new = calloc(1, sizeof(client));
     new->fd = client_fd;
@@ -161,6 +194,11 @@ client *new_client(int client_fd, int is_server, size_t sibling_idx) {
     return new;
 }
 
+/**
+ * @brief      Free a client
+ *
+ * @param      c     THe client to be freed
+ */
 void free_client(client* c) {
     free(c->recv_buf);
     free(c->send_buf);
@@ -169,16 +207,22 @@ void free_client(client* c) {
 }
 
 /*
- *  @REQUIRES:
- *  client_fd: The fd of the client you want to add
- *  clients: A pointer to the array of client structures
- *  read_set: The set we monitor for incoming data
- *  is_server: A flag to tell us whether this client is a server or a requester
- *  sibling_idx: For a server it will be its client's index, for a client it will be its server index
- *  
- *  @ENSURES: Returns the index of the added client if possible, otherwise -1
+ * @REQUIRES: client_fd: The fd of the client you want to add clients: A pointer
+ * to the array of client structures read_set: The set we monitor for incoming
+ * data is_server: A flag to tell us whether this client is a server or a
+ * requester sibling_idx: For a server it will be its client's index, for a
+ * client it will be its server index
  *
-*/
+ * @ENSURES: Returns the index of the added client if possible, otherwise -1
+ *
+ * @param[in]  client_fd    The client fd
+ * @param      clients      The clients
+ * @param      read_set     The read set
+ * @param[in]  is_server    Indicates if server
+ * @param[in]  sibling_idx  The sibling index
+ *
+ * @return     add a client to the FD set
+ */
 int add_client(int client_fd, client **clients, fd_set *read_set, int is_server, size_t sibling_idx) {
     int i;
     for (i = 0; i < MAX_CLIENTS - 1; i ++) {
@@ -192,15 +236,19 @@ int add_client(int client_fd, client **clients, fd_set *read_set, int is_server,
 }
 
 /*
- *  @REQUIRES:
- *  clients: A pointer to the array of client structures
- *  i: Index of the client to remove
- *  read_set: The set we monitor for incoming data
- *  write_set: The set we monitor for outgoing data
- *  
- *  @ENSURES: Removes the client and its sibling from all our data structures
+ * @REQUIRES: clients: A pointer to the array of client structures i: Index of
+ * the client to remove read_set: The set we monitor for incoming data
+ * write_set: The set we monitor for outgoing data
  *
-*/
+ * @ENSURES: Removes the client and its sibling from all our data structures
+ *
+ * @param      clients    The clients
+ * @param[in]  i          The index of the client
+ * @param      read_set   The read set
+ * @param      write_set  The write set
+ *
+ * @return     remove a client from FD set
+ */
 int remove_client(client **clients, size_t i, fd_set *read_set, fd_set *write_set) {
     
     if (clients[i] == NULL) {
@@ -225,6 +273,14 @@ int remove_client(client **clients, size_t i, fd_set *read_set, fd_set *write_se
     return 0;
 }
 
+/**
+ * @brief      Find the max file descriptor
+ *
+ * @param[in]  listen_fd  The listen fd
+ * @param      clients    The clients
+ *
+ * @return     The max FD
+ */
 int find_maxfd(int listen_fd, client **clients) {
     int max_fd = listen_fd;
     int i;
@@ -240,15 +296,18 @@ int find_maxfd(int listen_fd, client **clients) {
 
 
 /*
- *  @REQUIRES:
- *  clients: A pointer to the array of client structures
- *  i: Index of the client to remove
- *  
- *  @ENSURES: 
+ * @REQUIRES: clients: A pointer to the array of client structures i: Index of
+ * the client to remove
+ *
+ * @ENSURES:
  *  - tries to send the data present in a clients send buffer to that client
  *  - If data is sent, returns the remaining bytes to send, otherwise -1
  *
-*/
+ * @param      clients  The clients
+ * @param[in]  i        The index of the client
+ *
+ * @return     successful or not 
+ */
 int process_client_send(client **clients, size_t i) {
     int n;
     char *new_send_buffer;
@@ -271,15 +330,20 @@ int process_client_send(client **clients, size_t i) {
 }
 
 /*
- *  @REQUIRES:
- *  clients: A pointer to the array of client structures
- *  i: Index of the client to remove
- *  
- *  @ENSURES: 
- *  - tries to recv data from the client and updates its internal state as appropriate
- *  - If data is received, return the number of bytes received, otherwise return 0 or -1
+ * @REQUIRES: clients: A pointer to the array of client structures i: Index of
+ * the client to remove
  *
-*/
+ * @ENSURES:
+ *  - tries to recv data from the client and updates its internal state as
+ *    appropriate
+ *  - If data is received, return the number of bytes received, otherwise return
+ *    0 or -1
+ *
+ * @param      clients  The clients
+ * @param[in]  i        The index of the client
+ *
+ * @return     successful or not
+ */
 int recv_from_client(client** clients, size_t i) {
     int n;
     char buf[INIT_BUF_SIZE];
@@ -310,15 +374,19 @@ int recv_from_client(client** clients, size_t i) {
 
 
 /*
- *  @REQUIRES:
- *  clients: A pointer to the array of client structures
- *  i: Index of the client to remove
- *  buf: The message to add to the send buffer
- *  
- *  @ENSURES: 
- *  - appends data to the client's send buffer and returns the number of bytes appended
+ * @REQUIRES: clients: A pointer to the array of client structures i: Index of
+ * the client to remove buf: The message to add to the send buffer
  *
-*/
+ * @ENSURES:
+ *  - appends data to the client's send buffer and returns the number of bytes
+ *    appended
+ *
+ * @param      clients  The clients
+ * @param[in]  i        The index of the client
+ * @param[in]  res      The resource
+ *
+ * @return     The number queued
+ */
 int queue_message_send(client **clients, size_t i, pop_response res) {
     size_t n = res.message_length;
     size_t new_size;
@@ -338,6 +406,13 @@ int queue_message_send(client **clients, size_t i, pop_response res) {
     return n;
 }
 
+/**
+ * @brief      Handler for server response
+ *
+ * @param      clients  The clients
+ * @param[in]  i        The index of the client
+ * @param[in]  res      The resource
+ */
 void server_response_handler(client **clients, size_t i, pop_response res) {
     char* response = res.message;
     char* content_type = get_content_type(response, res.message_length);
@@ -366,18 +441,24 @@ void server_response_handler(client **clients, size_t i, pop_response res) {
 }
 
 /*
- *  @REQUIRES:
- *  clients: A pointer to the array of client structures
- *  i: Index of the client to remove
- *  data_available: flag whether you can call recv on this client without blocking
- *  write_set: the set containing the fds to observe for being ready to write to
- *  
- *  @ENSURES: 
- *  - tries to read data from the client, then tries to reap a complete http message
- *      and finally tries to queue the message to be forwarded to its sibling
+ * @REQUIRES: clients: A pointer to the array of client structures i: Index of
+ * the client to remove data_available: flag whether you can call recv on this
+ * client without blocking write_set: the set containing the fds to observe for
+ * being ready to write to
+ *
+ * @ENSURES:
+ *  - tries to read data from the client, then tries to reap a complete http
+ *    message and finally tries to queue the message to be forwarded to its
+ *    sibling
  *  - returns number of bytes queued if no errors, -1 otherwise
  *
-*/
+ * @param      clients         The clients
+ * @param[in]  i               The index of the client
+ * @param[in]  data_available  The data available
+ * @param      write_set       The write set
+ *
+ * @return     The bytes read
+ */
 int process_client_read(client **clients, size_t i, int data_available, fd_set *write_set) {
     char *msg_rcvd;
     int nread;
@@ -404,10 +485,10 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
 
     else {
         if (clients[i]->is_server) {
-            // 如果这个请求是server过来的
+            // Server side
             if (strstr(msg_rcvd, "bitrate=\"") != NULL) {
                 printf("[Message] Receive f4m file from server, start to proces it\n");
-                // 是真实的f4m文件，不转发回去
+                // True f4m file, do not send back
                 size_t nlen = strlen("bitrate:");
                 p = msg_rcvd;
                 int count = 0;
@@ -421,21 +502,20 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
                 clients[sibling_idx]->number_of_rates = count;
                 int dummy;
                 for (dummy = 0; dummy < count; dummy++) {
-                    // printf("Bit Rate %d is %d\n", dummy, clients[clients[i]->sibling_idx]->bit_rates[dummy]);
                     printf("Bit Rate %d is %d\n", dummy, clients[sibling_idx]->bit_rates[dummy]);
                 }
 
                 return 0;
             } else {
-                // 其他的文件都正常的转发回去
+                // send back others
                 printf("[Message] Forward other response from server to client\n");
                 server_response_handler(clients, i, res);
             }
         } else {
-            // 如果这个请求是client过来的
+            // client side
             if (strstr(msg_rcvd, ".f4m") != NULL && strstr(msg_rcvd, "GET") != NULL) {
                 printf("[Message] client request for f4m file\n");
-                // 这个请求是GET f4m 文件， 多queue一个nolist的request
+                // Request is GET f4m, queue one more no list 
                 pop_response tmp;
                 char new_message[INIT_BUF_SIZE];
                 memset(new_message, 0, INIT_BUF_SIZE);
@@ -448,8 +528,7 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
                 bytes_queued += queue_message_send(clients, sibling_idx, tmp);
                 printf("Content is:\n%s\n", tmp.message);
             } else {
-                // 其他request都直接转发到server
-                // TODO: 需要处理一下bitrate的重新计算问题
+                // send back others
                 if (strstr(msg_rcvd, "GET") != NULL && 
                     strstr(strstr(msg_rcvd, "GET"), "Seg") != NULL && 
                     strstr(strstr(strstr(msg_rcvd, "GET"), "Seg"), "-Frag") != NULL) {
@@ -471,6 +550,11 @@ int process_client_read(client **clients, size_t i, int data_available, fd_set *
 
 }
 
+/**
+ * @brief      Starts a proxying.
+ *
+ * @return     Successful or not
+ */
 int start_proxying() {
     int max_fd, nready, listen_fd;
     fd_set read_set, read_ready_set, write_set, write_ready_set;
@@ -479,7 +563,6 @@ int start_proxying() {
     client **clients;
     size_t i;
 
-    // listen_port = 8888;
     char* server_ip = "127.0.0.1";
     if (www_ip != NULL) {
         server_ip = www_ip;
@@ -492,9 +575,6 @@ int start_proxying() {
         return -1;
     }
 
-
-    // init_multiplexer(listen_fd, clients, read_set, write_set);
-
     clients = calloc(MAX_CLIENTS - 1, sizeof(client*));
     FD_ZERO(&read_set);
     FD_ZERO(&write_set);
@@ -505,7 +585,6 @@ int start_proxying() {
     while (1) {
         read_ready_set = read_set;
         write_ready_set = write_set;
-        // printf("Watining to select...\n");
         nready = select(max_fd+1, &read_ready_set, &write_ready_set, NULL, NULL);
 
         if (nready > 0) {
@@ -579,10 +658,15 @@ int start_proxying() {
     }
 }
 
-
-
+/**
+ * @brief      Main function
+ *
+ * @param[in]  argc  The argc
+ * @param      argv  The argv
+ *
+ * @return     
+ */
 int main(int argc, char* argv[]) {
-    // start_proxying();
     printf("Starting the proxy...\n");
 
     if (argc < 7) {
@@ -599,16 +683,6 @@ int main(int argc, char* argv[]) {
     www_ip = argv[7];
     init_log(log_path);
     init_mydns(dns_ip, dns_port, fake_ip);
-    // printf("finish parse the args\n");
-    // ======================================== test_only ======================================== 
-    // char response_ip[MAXLINE];
-    // memset(response_ip, 0, MAXLINE);
-    // resolve("video.cmu.cs.edu", response_ip);
-
-    // memset(response_ip, 0, MAXLINE);
-    // resolve("www.cmu.cs.edu", response_ip);
-    // ======================================== end test ======================================== 
-
     start_proxying();
     return 0;
 }

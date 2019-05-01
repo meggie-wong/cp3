@@ -12,45 +12,54 @@ int res_cnt = 0;
 dns_record_t dns_records = {.hostname = "video.cs.cmu.edu",.resolve_cnt = 0, .record_cnt = 0};
 graph_t* graph;
 
+/**
+ * @brief      Gets the query name.
+ *
+ * @param      query_message  The query message
+ * @param      query_name     The query name
+ */
 void get_query_name(query_message_t* query_message, char * query_name) {
     decode_domain(query_message->question.QNAME, query_name);
-    printf("After recover the query name is %s\n", query_name);
 }
 
+/**
+ * @brief      Gets the response ip.
+ *
+ * @param      query_name  The query name
+ * @param      client_ip   The client ip
+ *
+ * @return     The response ip.
+ */
 char* get_response_ip(char* query_name, char* client_ip) {
     char * response_ip;
-    printf("query name (len = %d) is %s\n", strlen(query_name),query_name);
-    printf("record name (len = %d) is %s\n", strlen(dns_records.hostname), dns_records.hostname);
-    printf("compare result = %d\n", strcmp(dns_records.hostname, query_name));
     if ( method_robin ) {
         if( strcmp(dns_records.hostname, query_name) == 0 ) { // is video.cmu.cs.edu 
             response_ip = dns_records.server_ip[dns_records.resolve_cnt%dns_records.record_cnt];
             dns_records.resolve_cnt ++;
             printf("is Valid domain name!!!\n");
-            printf("is Valid respond ip at this time is %s\n", response_ip);
             return response_ip;
         } else {
             printf("is inValid domain name!!!\n");
             return NULL;
         }
     } else {
-        // TODO add shortest path
         printf("Use dijkstra\n");
         if (strcmp(dns_records.hostname, query_name) == 0) {
             response_ip = malloc(MAXLINE);
             memset(response_ip, 0, MAXLINE);
             dijkstra(graph, client_ip, response_ip);
             printf("is Valid domain name!!!\n");
-            printf("is Valid respond ip at this time is %s\n", response_ip);
             return response_ip;
         } else {
             printf("is inValid domain name!!!\n");
             return NULL;
         }
     }
-
 }
 
+/**
+ * @brief      Starts a dns server.
+ */
 void start_dns_server() {
 	int sockfd; 
 	char buffer[MAXLINE]; 
@@ -74,7 +83,7 @@ void start_dns_server() {
 	
 	// Filling server information 
 	servaddr.sin_family = AF_INET; // IPv4 
-	servaddr.sin_addr.s_addr = inet_addr(dns_ip); // 打印的时候可以调用inet_ntoa()函数将其转换为char *类型.
+	servaddr.sin_addr.s_addr = inet_addr(dns_ip); 
 	servaddr.sin_port = htons(dns_port); 
 	
 	// Bind the socket with the server address 
@@ -95,14 +104,13 @@ void start_dns_server() {
         buffer[n] = '\0'; 
         client_ip = inet_ntoa(cliaddr.sin_addr); 
         query_message_t* query_message = de_buffer_query(buffer);
-        printf("query name is %s after decode\n", query_message->question.QNAME);
-        int i = 0;
-        for (i = 0; i < 15; ++i) {
-            printf("%x ", query_message->question.QNAME[i]);
-        }
-        printf("\n");
+        // printf("query name is %s after decode\n", query_message->question.QNAME);
+        // int i = 0;
+        // for (i = 0; i < 15; ++i) {
+        //     printf("%x ", query_message->question.QNAME[i]);
+        // }
+        // printf("\n");
         get_query_name(query_message, query_name);
-        // strcpy(query_name, "video.cmu.cs.edu");
         printf("Client : %s(ip=%s)\n", query_name, inet_ntoa(cliaddr.sin_addr)); 
         printf("After recover the query name is %s\n", query_name);
         memset(buffer, 0, MAXLINE);
@@ -116,8 +124,6 @@ void start_dns_server() {
             buffer_dns_error(buffer, answer_message);
             response_len = sizeof(answer_message->header);
         }
-
-        printf("response id = %d******\n", answer_message->header.ID);
            
         sendto(sockfd, (const char *)buffer, response_len, 
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
@@ -126,11 +132,18 @@ void start_dns_server() {
         // <time> <client-ip> <query-name> <response-ip>
         gettimeofday(&now, NULL);
         logger("%ld %s %s %s\n", (long)now.tv_sec, client_ip, query_name, response_ip);
-
         printf("DNS resolution sent.\n"); 
     }
 	
 }
+/**
+ * @brief      Main function
+ *
+ * @param[in]  argc  The argc
+ * @param      argv  The argv
+ *
+ * @return    DNS server main function
+ */
 int main(int argc, char* argv[]) {
     // start_proxying();
     printf("Starting the dns server...\n");
@@ -174,37 +187,8 @@ int main(int argc, char* argv[]) {
 		    dns_records.record_cnt ++;
         }
 	} 
-	fclose(fp);											//关闭文件
+	fclose(fp);				
 
-
-    /* =========== test only =========== */
-    // char buffer[MAXLINE]; 
-    // memset(buffer, 0, MAXLINE);
-    // char * query_name = "www.northeastern.edu";
-    // query_message_t* query_message = create_query_message(query_name);
-    // buffer_dns_question(buffer, query_message);
-
-    // int i = 0;
-    // for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header) + 5; i++) {
-    //     // printf("%hhx ",buffer[i]);
-    //     printf("%hhx[%c]", buffer[i], buffer[i]);
-    //     if(i == 11) printf("\n");
-    // }
-    // printf("end query=============\n");
-    // char * response_ip = "155.33.17.68";
-    // answer_message_t* answer_message = create_answer_message(response_ip, query_name);
-    // printf("rdate %x\n",answer_message->answer.RDATA);
-    // buffer_dns_answer(buffer, answer_message);
-    // for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 21; i++) {
-    //     // printf("%hhx ",buffer[i]);
-    //     printf("%hhx[%c] ", buffer[i], buffer[i]);
-    // }
-    // answer_message = de_buffer_answer(buffer);
-    // printf("end ans=============\n");
-    // answer_message = de_buffer_response(buffer);
-    // printf("llllll %x\n", answer_message->answer.RDATA);
-
-    /* =========== test only =========== */
     graph = malloc(sizeof(graph_t));
     read_servers_ip(servers_path, graph);
     read_LSA(LSAs_path, graph);
