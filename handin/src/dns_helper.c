@@ -35,7 +35,6 @@ query_message_t* create_query_message(char* query_name) {
     memset(query_message->question.QNAME, 0, strlen(encode_name) + 1);
 
     memcpy(query_message->question.QNAME, encode_name, strlen(encode_name) + 1);
-    query_message->question.NMLENGTH = strlen(query_message->question.QNAME) + 1;
     query_message->question.QTYPE = htons(1);
     query_message->question.QCLASS = htons(1);
     return query_message;
