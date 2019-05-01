@@ -17,7 +17,7 @@ void get_query_name(query_message_t* query_message, char * query_name) {
     printf("After recover the query name is %s\n", query_name);
 }
 
-char* get_response_ip(char* query_name) {
+char* get_response_ip(char* query_name, char* client_ip) {
     char * response_ip;
     printf("query name is %s\n", query_name);
     if ( method_robin ) {
@@ -105,7 +105,7 @@ void start_dns_server() {
 
         printf("After recover the query name is %s\n", query_message);
         memset(buffer, 0, MAXLINE);
-        response_ip = get_response_ip(query_name); 
+        response_ip = get_response_ip(query_name, client_ip); 
         if (response_ip != NULL) {
             answer_message = create_answer_message(response_ip, query_message->question.QNAME);
             buffer_dns_answer(buffer, answer_message);
