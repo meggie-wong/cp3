@@ -175,23 +175,23 @@ answer_message_t* de_buffer_answer(char* buffer) {
     answer->NAME = malloc(len);
     memcpy(answer->NAME, p, len);
     p += len + 3; // ignore question type, class and c00c
-    printf("read answer %x\n",p[0]);
+    printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->TYPE), p, sizeof(uint16_t));
     p += len;
-
+    printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->CLASS), p, sizeof(uint16_t));
     p += len;
-
+    printf("read answer %d\n",*p);
     len = sizeof(uint32_t);
     memcpy(&(answer->TTL), p, sizeof(uint32_t));
     p += len;
-
+    printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->RDLENGTH), p, sizeof(uint16_t));
     p += len;
-
+    printf("read rdate %d\n",*p);
     len = sizeof(uint32_t);
     memcpy(&(answer->RDATA), p, sizeof(uint32_t));
     p += len;
