@@ -184,6 +184,7 @@ int main(int argc, char* argv[]) {
         // printf("%hhx ",buffer[i]);
         printf("%hhx[%c] ", buffer[i], buffer[i]);
     }
+    answer_message = de_buffer_answer(buffer);
     printf("end ans=============\n");
     // answer_message = de_buffer_response(buffer);
     // printf("llllll %x\n", answer_message->answer.RDATA);

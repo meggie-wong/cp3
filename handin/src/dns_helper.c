@@ -115,7 +115,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 
 // ====== should have a question filed
     len = sizeof(uint16_t);
-    uint16_t TYPE = 1, CLASS = 1;
+    uint16_t TYPE = htons(1), CLASS = htons(1);
 
     memcpy(ptr, &TYPE, len);
     ptr += len;
@@ -169,12 +169,13 @@ answer_message_t* de_buffer_answer(char* buffer) {
 
     resource_record_t* answer = &(answer_message->answer);
     char* p = buffer + sizeof(answer_message->header);
-
+    
     int len = strlen(p) + 1;
+    printf("read %d name %s \n",len, p);
     answer->NAME = malloc(len);
     memcpy(answer->NAME, p, len);
     p += len + 3; // ignore question type, class and c00c
-
+    printf("read answer %x\n",p[0]);
     len = sizeof(uint16_t);
     memcpy(&(answer->TYPE), p, sizeof(uint16_t));
     p += len;
