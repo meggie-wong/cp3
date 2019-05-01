@@ -217,7 +217,7 @@ query_message_t* de_buffer_query(char* buffer) {
     /* start to copy header */
     query_message_t* query_message = (query_message_t*)malloc(sizeof(query_message_t));
     memcpy((char*)&(query_message->header), buffer, sizeof(dns_header_t));
-    custom_hton4(&(query_message->header)+2);
+    custom_hton4((char*)&(query_message->header)+2);
 
     dns_header_t* header = &(query_message->header);
     header->ID = ntohs(header->ID);
