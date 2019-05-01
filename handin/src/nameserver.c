@@ -178,29 +178,29 @@ int main(int argc, char* argv[]) {
 
 
     /* =========== test only =========== */
-    char buffer[MAXLINE]; 
-    memset(buffer, 0, MAXLINE);
-    char * query_name = "www.northeastern.edu";
-    query_message_t* query_message = create_query_message(query_name);
-    buffer_dns_question(buffer, query_message);
+    // char buffer[MAXLINE]; 
+    // memset(buffer, 0, MAXLINE);
+    // char * query_name = "www.northeastern.edu";
+    // query_message_t* query_message = create_query_message(query_name);
+    // buffer_dns_question(buffer, query_message);
 
-    int i = 0;
-    for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header) + 5; i++) {
-        // printf("%hhx ",buffer[i]);
-        printf("%hhx[%c]", buffer[i], buffer[i]);
-        if(i == 11) printf("\n");
-    }
-    printf("end query=============\n");
-    char * response_ip = "155.33.17.68";
-    answer_message_t* answer_message = create_answer_message(response_ip, query_name);
-    printf("rdate %x\n",answer_message->answer.RDATA);
-    buffer_dns_answer(buffer, answer_message);
-    for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 21; i++) {
-        // printf("%hhx ",buffer[i]);
-        printf("%hhx[%c] ", buffer[i], buffer[i]);
-    }
-    answer_message = de_buffer_answer(buffer);
-    printf("end ans=============\n");
+    // int i = 0;
+    // for(i = 0; i < strlen(query_message->question.QNAME) + sizeof(query_message->header) + 5; i++) {
+    //     // printf("%hhx ",buffer[i]);
+    //     printf("%hhx[%c]", buffer[i], buffer[i]);
+    //     if(i == 11) printf("\n");
+    // }
+    // printf("end query=============\n");
+    // char * response_ip = "155.33.17.68";
+    // answer_message_t* answer_message = create_answer_message(response_ip, query_name);
+    // printf("rdate %x\n",answer_message->answer.RDATA);
+    // buffer_dns_answer(buffer, answer_message);
+    // for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 21; i++) {
+    //     // printf("%hhx ",buffer[i]);
+    //     printf("%hhx[%c] ", buffer[i], buffer[i]);
+    // }
+    // answer_message = de_buffer_answer(buffer);
+    // printf("end ans=============\n");
     // answer_message = de_buffer_response(buffer);
     // printf("llllll %x\n", answer_message->answer.RDATA);
 
