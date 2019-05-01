@@ -45,5 +45,4 @@ int init_mydns(const char *dns_ip, unsigned int dns_port, const char *fake_ip);
  * @return 0 on success, -1 otherwise
  */
 
-int resolve(const char *node, const char *service, 
-            const struct addrinfo *hints, struct addrinfo **res);
+int resolve(const char *node, char *response_ip);
