@@ -84,7 +84,7 @@ void encode_domain(char* domain_name, char* res_buf);
 dns_header_t* create_header(dns_header_t* header);
 query_message_t* create_query_message(char* query_name);
 answer_message_t* create_answer_message(char* response_ip, char* name);
-answer_message_t* create_error_message(char* response_ip, int error);
+answer_message_t* create_error_message(int error);
 void buffer_dns_question(char*buffer, query_message_t* query_message);
 void buffer_dns_answer(char*buffer, answer_message_t* answer_message);
 void buffer_dns_error(char*buffer, answer_message_t* error_message);

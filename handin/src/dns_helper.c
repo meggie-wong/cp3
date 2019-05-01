@@ -59,7 +59,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     return answer_message;
 }
 
-answer_message_t* create_error_message(char* response_ip, int error) {
+answer_message_t* create_error_message(int error) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
     dns_header_t* header = create_header(&(answer_message->header));
     header->QR = 1;
