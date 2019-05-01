@@ -8,6 +8,8 @@
 #define MAXLINE 4096
 #define MAX_NODE 1024
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
 struct dns_header {
     uint16_t ID;
     uint16_t QR : 1;
@@ -66,7 +68,7 @@ struct graph_node {
     int version; // the version number of the update for this node
     int index; // index-th node in the graph
     int is_server; // 1 is server, 0 is not server
-    int neighbor_position[1024]; // use index to find all the neighbors
+    int neighbor_position[MAX_NODE]; // use index to find all the neighbors
     int neighbor_num;
 };
 
@@ -75,10 +77,11 @@ typedef struct graph_node graph_node_t;
 struct graph_nodes {
     graph_node_t nodes[MAX_NODE];
     int size;
+    char servers[MAX_NODE][MAXLINE];
+    int server_num;
 };
 
 typedef struct graph_nodes graph_t;
-
 
 void encode_domain(char* domain_name, char* res_buf);
 dns_header_t* create_header(dns_header_t* header);

@@ -1,12 +1,18 @@
 #include "mydns.h"
 
-
 int client_fd;
 struct sockaddr_in ser_addr, cli_addr;
 
-char* get_response_ip(char* query_name) {
-
-
+char* get_response_ip(char* recv_buf, int n, char* response_ip) {
+    answer_message_t* answer_message = de_buffer_answer(recv_buf);
+    uint32_t ip = answer_message->answer.RDATA;
+    printf("ip: %x\n", ip);
+    struct in_addr ip_addr;
+    ip_addr.s_addr = ip;
+    sprintf(response_ip, "%s", inet_ntoa(ip_addr));
+    printf("receive a ip of %s\n", response_ip);
+    // TODO 完整性检验
+    return response_ip;
 }
 int init_mydns(const char *dns_ip, unsigned int dns_port, const char* fake_ip) {
 

@@ -204,11 +204,11 @@ answer_message_t* de_buffer_answer(char* buffer) {
     memcpy(&(answer->RDATA), p, sizeof(uint32_t));
     p += len;
 
-//    answer->TYPE = ntohs(answer->TYPE);
-//    answer->CLASS = ntohs(answer->CLASS);
-//    answer->TTL = ntohl(answer->TTL);
-//    answer->RDLENGTH = ntohs(answer->RDLENGTH);
-//    answer->RDATA = ntohl(answer->RDATA);
+   answer->TYPE = ntohs(answer->TYPE);
+   answer->CLASS = ntohs(answer->CLASS);
+   answer->TTL = ntohl(answer->TTL);
+   answer->RDLENGTH = ntohs(answer->RDLENGTH);
+   answer->RDATA = ntohl(answer->RDATA);
 
     printf("NAME is %s\n", answer->NAME);
     printf("TYPE is %d\n", answer->TYPE);
@@ -235,11 +235,6 @@ query_message_t* de_buffer_query(char* buffer) {
     /* start to copy question */
     char* p = buffer + sizeof(query_message->header);
     dns_question_t* question = &(query_message->question);
-    int i = 0;
-    for(i=0;i<15;i++){
-        printf("%hhx ", p[i]);
-    }
-    printf("+++++ %hhx,%hhx\n", p[0], p[1]);
 
     int len = strlen(p) + 1;
     printf("has a intermediate length of %d\n", len);
@@ -255,15 +250,13 @@ query_message_t* de_buffer_query(char* buffer) {
     memcpy(&(question->QCLASS), p, sizeof(uint16_t));
     p += len;
 
-//    question->QTYPE = ntohs(question->QTYPE);
-//    question->QCLASS = ntohs(question->QCLASS);
-
+    question->QTYPE = ntohs(question->QTYPE);
+    question->QCLASS = ntohs(question->QCLASS);
 
     printf("QNAME has a length of %d\n", strlen(question->QNAME));
     printf("QNAME is %s\n", question->QNAME);
     printf("QTYPE is %hhx\n", question->QTYPE);
     printf("QCLASS is %hhx\n", question->QCLASS);
-
 
     return query_message;
 }
@@ -333,23 +326,56 @@ void decode_domain(char *name, char *des) {
     des[i - 1] = 0;
 }
 
+void read_servers_ip(char* servers_ip_file, graph_t* graph) {
+    FILE* file = fopen(servers_ip_file, "r");
+    char line[MAXLINE];
+    int count = 0;
+    if (file == NULL) {
+        printf("[Error] Error in open file %s\n", servers_ip_file);
+        return;
+    }
+    while (fgets(line, MAXLINE, file)) {
+        int len = strlen(line);
+        line[len - 1] = '\0';
+        // graph->servers[count] = malloc(strlen(line) + 1);
+        printf("One of the server is %s\n", line);
+        strcpy(graph->servers[count++], line);
+    }
+    graph->server_num = count;
+}
+
+int is_server(char* name, graph_t* graph) {
+    int i;
+    for (i = 0; i < graph->server_num; ++i) {
+        if (!strcmp(graph->servers[i], name)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
 int add_node(graph_t* graph, char* name, int version) {
     graph_node_t* curr_node = &(graph->nodes[graph->size]);
     curr_node->name = malloc(MAXLINE);
     strcpy(curr_node->name, name);
     curr_node->version = version;
     graph->size++;
+    curr_node->is_server = is_server(name, graph);
     return graph->size - 1;
 }
 
-int find_node(graph_t* graph, char* name) {
+int find_node(graph_t* graph, char* name, int create_new) {
     int i;
     for (i = 0; i < graph->size; ++i) {
         if (!strcmp(graph->nodes[i].name, name)) {
             return i;
         }
     }
-    return add_node(graph, name, 1);
+    if (create_new) {
+        return add_node(graph, name, 1);
+    }
+    return -1;
 }
 
 void print_node(graph_t* graph, graph_node_t* node) {
@@ -368,7 +394,7 @@ void print_graph(graph_t* graph) {
     }
 }
 
-void read_LSA(char* lsa_path) {
+void read_LSA(char* lsa_path, graph_t* graph) {
     FILE* file = fopen(lsa_path, "r");
     char* head_of_line = NULL;
     char line[MAXLINE];
@@ -377,7 +403,7 @@ void read_LSA(char* lsa_path) {
     char* neighbor;
     int seq;
     int idx;
-    graph_t* graph = malloc(sizeof(graph_t));
+
     graph->size = 0;
     graph_node_t* curr_node;
     int count;
@@ -398,7 +424,7 @@ void read_LSA(char* lsa_path) {
         seq = atoi(p);
 
         // printf("Current sequence number %d start node is %s\n", seq, name);
-        idx = find_node(graph, name);
+        idx = find_node(graph, name, 1);
         curr_node = &(graph->nodes[idx]);
         if (curr_node->version > seq) {
             continue;
@@ -410,7 +436,7 @@ void read_LSA(char* lsa_path) {
         count = 0;
         while (neighbor != NULL) {
             // printf("neighbor is %s\n", neighbor);
-            idx = find_node(graph, neighbor);
+            idx = find_node(graph, neighbor, 1);
             curr_node->neighbor_position[count++] = idx;
             neighbor = strtok(NULL, ",");
         }
@@ -418,6 +444,103 @@ void read_LSA(char* lsa_path) {
     }
     print_graph(graph);
     fclose(file);
+}
+
+
+void bfs(graph_t* graph, char* client, char* resolved_server) {
+    int is_visited[graph->size];
+    int path[graph->size];
+    int nv = 0, nf = 1;
+    int curr_node;
+    int i;
+    int client_idx = find_node(graph, client, 0);
+    if (client_idx < 0) {
+        printf ("[Error] Cannot find node %s", client);
+        return;
+    }
+    // clear the memory default settings
+    for (i = 0; i < graph->size; i++) {
+        is_visited[i] = 0;
+    }
+    path[0] = client_idx;
+    while (nv < nf) {
+        curr_node = path[nv++];
+        is_visited[curr_node] = 1;
+        for (i = 0; i < graph->nodes[curr_node].neighbor_num; i++) {
+            int curr_neighbor = graph->nodes[curr_node].neighbor_position[i];
+            if (! is_visited[curr_neighbor]) {
+                path[nf++] = curr_neighbor;
+            }
+            if (is_server(graph->nodes[curr_neighbor].name, graph)) {
+                strcpy(resolved_server, graph->nodes[curr_neighbor].name);
+                return;
+            }
+        }
+    }
+}
+
+
+void dijkstra(graph_t* graph, char* client, char* resolved_server) {
+    int cost[graph->size][graph->size];
+    int is_visited[graph->size];
+    int distance[graph->size];
+    int i, j;
+    int nv = 0;
+    int curr_idx;
+    int minDistance = 1 << 30;
+    int minDisIndex = -1;
+    for (i = 0; i < graph->size; i++) {
+        distance[i] = 1 << 30;
+        is_visited[i] = 0;
+    }
+    // predefine as max int
+    for (i = 0; i < graph->size; i++) {
+        for (j = 0; j < graph->size; j++) {
+            cost[i][j] = 1 << 30;
+        }
+    }
+    // build cost matrix
+    for (i = 0; i < graph->size; i++) {
+        for (j = 0; j < graph->nodes[i].neighbor_num; j++) {
+            int curr_neighbor = graph->nodes[i].neighbor_position[j];
+            cost[i][curr_neighbor] = 1;
+            cost[curr_neighbor][i] = 1;
+        }
+    }
+
+
+    int client_idx = find_node(graph, client, 0);
+    if (client_idx < 0) {
+        printf ("[Error] Cannot find node %s", client);
+        return;
+    }
+
+    distance[client_idx] = 0;
+
+    while (nv < graph->size) {
+        minDistance = 1 << 30;
+        // find the min distance node also not found already
+        for (i = 0; i < graph->size; ++i) {
+            if (distance[i] < minDistance && (!is_visited[i])) {
+                minDistance = distance[i];
+                minDisIndex = i;
+            }
+        }
+
+        // if find a server, return it immediately
+        if (is_server(graph->nodes[minDisIndex].name, graph)) {
+            strcpy(resolved_server, graph->nodes[minDisIndex].name);
+            return;
+        }
+
+        is_visited[minDisIndex] = 1;
+        nv++;
+
+        for (i = 0; i < graph->nodes[minDisIndex].neighbor_num; i++) {
+            int curr_neighbor = graph->nodes[minDisIndex].neighbor_position[i];
+            distance[curr_neighbor] = MIN(distance[curr_neighbor], cost[minDisIndex][curr_neighbor] + distance[minDisIndex]);
+        }
+    }
 }
 
 

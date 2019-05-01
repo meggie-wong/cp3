@@ -10,6 +10,7 @@ char* LSAs_path;
 int method_robin = 0;
 int res_cnt = 0;
 dns_record_t dns_records = {.hostname = "video.cmu.cs.edu",.resolve_cnt = 0, .record_cnt = 0};
+graph_t* graph;
 
 void get_query_name(query_message_t* query_message, char * query_name) {
     decode_domain(query_message->question.QNAME, query_name);
@@ -32,8 +33,18 @@ char* get_response_ip(char* query_name) {
         }
     } else {
         // TODO add shortest path
-        printf(" not use robin \n");
-
+        printf("Use dijkstra\n");
+        if (strcmp(dns_records.hostname, query_name) == 0) {
+            response_ip = malloc(MAXLINE);
+            memset(response_ip, 0, MAXLINE);
+            dijkstra(graph, client_ip, response_ip);
+            printf("is Valid domain name!!!\n");
+            printf("is Valid respond ip at this time is %s\n", response_ip);
+            return response_ip;
+        } else {
+            printf("is inValid domain name!!!\n");
+            return NULL;
+        }
     }
 
 }
@@ -191,6 +202,9 @@ int main(int argc, char* argv[]) {
     // printf("llllll %x\n", answer_message->answer.RDATA);
 
     /* =========== test only =========== */
+    graph = malloc(sizeof(graph_t));
+    read_servers_ip(servers_path, graph);
+    read_LSA(LSAs_path, graph);
     start_dns_server();
     return 0;
 }
