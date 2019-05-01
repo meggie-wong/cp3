@@ -14,7 +14,6 @@ dns_record_t dns_records = {.hostname = "video.cmu.cs.edu",.resolve_cnt = 0, .re
 
 void get_query_name(query_message_t* query_message, char * query_name) {
     decode_domain(query_message->question.QNAME, query_name); 
-    return NULL;
 }
 
 char* get_response_ip(char* query_name) {
