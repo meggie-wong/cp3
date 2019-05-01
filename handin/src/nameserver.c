@@ -83,7 +83,8 @@ void start_dns_server() {
         client_ip = inet_ntoa(cliaddr.sin_addr); 
         query_message_t* query_message = de_buffer_query(buffer);
         printf("query name is %s after decode\n", query_message->question.QNAME);
-        for (int i = 0; i < 15; ++i) {
+        int i = 0;
+        for (i = 0; i < 15; ++i) {
             printf("%x ", query_message->question.QNAME[i]);
         }
         printf("\n");
