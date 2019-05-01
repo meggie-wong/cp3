@@ -27,7 +27,6 @@ struct dns_header {
 typedef struct dns_header dns_header_t;
 
 struct question {
-    uint32_t NMLENGTH;
     char* QNAME;
     uint16_t QTYPE;
     uint16_t QCLASS;
