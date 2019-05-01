@@ -151,7 +151,7 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     // printf("%x, %x, %x, %x", ptr[0], ptr[1], ptr[2], ptr[3]);
     ptr += len;
     int i = 0;
-    for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 15; i++) {
+    for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 21; i++) {
         // printf("%hhx ",buffer[i]);
         printf("%hhx[%c] ", buffer[i], buffer[i]);
     }
@@ -182,7 +182,7 @@ answer_message_t* de_buffer_answer(char* buffer) {
     printf("read %d name %s \n",len, p);
     answer->NAME = malloc(len);
     memcpy(answer->NAME, p, len);
-    p += len + 3; // ignore question type, class and c00c
+    p += len + 6; // ignore question type, class and c00c
     printf("read answer %x %x\n",p[0], p[1]);
     len = sizeof(uint16_t);
     memcpy(&(answer->TYPE), p, sizeof(uint16_t));
