@@ -204,11 +204,11 @@ answer_message_t* de_buffer_answer(char* buffer) {
     memcpy(&(answer->RDATA), p, sizeof(uint32_t));
     p += len;
 
-   answer->TYPE = ntohs(answer->TYPE);
-   answer->CLASS = ntohs(answer->CLASS);
-   answer->TTL = ntohl(answer->TTL);
-   answer->RDLENGTH = ntohs(answer->RDLENGTH);
-   answer->RDATA = ntohl(answer->RDATA);
+    answer->TYPE = ntohs(answer->TYPE);
+    answer->CLASS = ntohs(answer->CLASS);
+    answer->TTL = ntohl(answer->TTL);
+    answer->RDLENGTH = ntohs(answer->RDLENGTH);
+    answer->RDATA = ntohl(answer->RDATA);
 
     printf("NAME is %s\n", answer->NAME);
     printf("TYPE is %d\n", answer->TYPE);

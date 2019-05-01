@@ -101,7 +101,7 @@ int resolve(const char *query_name, char* response_ip){
         printf("receive %d bytes of data\n", n);
         // TODO get response ip and memcpy to response_ip  **cornercase**
         answer_message_t* answer_message = de_buffer_answer(recv_buffer);
-        uint32_t ip = answer_message->answer.RDATA;
+        uint32_t ip = htonl(answer_message->answer.RDATA);
         printf("ip: %x\n", ip);
         struct in_addr ip_addr;
         ip_addr.s_addr = ip;
