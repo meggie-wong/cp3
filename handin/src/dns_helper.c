@@ -53,11 +53,11 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message->answer.CLASS = htons(1);
     answer_message->answer.TTL = htonl(0);
     answer_message->answer.RDLENGTH = htons(4);
-    // answer_message->answer.RDATA = (uint32_t)inet_addr(response_ip);
-    struct in_addr ip;
-    inet_aton(response_ip, &ip);   /* 将字符串转换为二进制 */
-    uint32_t s_ip = ip.s_addr;
-    answer_message->answer.RDATA = htonl(s_ip);
+    answer_message->answer.RDATA = (uint32_t)inet_addr(response_ip);
+    // struct in_addr ip;
+    // inet_aton(response_ip, &ip);   /* 将字符串转换为二进制 */
+    // uint32_t s_ip = ip.s_addr;
+    // answer_message->answer.RDATA = htonl(s_ip);
     return answer_message;
 }
 
@@ -134,6 +134,29 @@ void buffer_dns_error(char*buffer, answer_message_t* error_message) {
     int len = sizeof(error_message->header);
     memcpy(buffer, &(error_message->header), len);
 }
+
+
+answer_message_t* de_buffer_response(char* buffer) {
+    answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
+    memcpy(answer_message->header, buffer, sizeof(dns_header_t));
+    buffer += sizeof(dns_header_t);
+    memcpy(answer_message->answer, buffer, sizeof(resource_record_t);
+
+    dns_header_t* header = &(answer_message->header);
+    header->ID = htons(header->ID);
+    header->QDCOUNT = htons(header->ID);
+
+    resource_record_t* answer = &(answer_message->answer);
+    answer->NMLENGTH = ntohl(answer->NMLENGTH);
+    answer->TYPE = ntohs(answer->TYPE);
+    answer->CLASS = ntohs(answer->CLASS);
+    answer->TTL = ntohl(answer->TTL);
+    answer->RDLENGTH = ntohs(answer->RDLENGTH);
+    answer->RDATA = ntohl(answer->RDATA);
+
+    return answer_message;
+}
+
 
 void encode_domain(char* domain_name, char* res_buf) {
     // video.cs.cmu.edu -> 5video2cs3cmu3edu0
