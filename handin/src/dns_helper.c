@@ -46,7 +46,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = htons(1);
-    header-> QRCOUNT = htons(1);
+    header-> QDCOUNT = htons(1);
     answer_message->answer.NAME = name;
     answer_message->answer.TYPE = htons(1);
     answer_message->answer.CLASS = htons(1);
