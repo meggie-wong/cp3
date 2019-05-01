@@ -42,14 +42,15 @@ query_message_t* create_query_message(char* query_name) {
     return query_message;
 }
 
-answer_message_t* create_answer_message(char* response_ip, char* name) {
+answer_message_t* create_answer_message(char* response_ip, query_message_t* query_message) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
     dns_header_t* header = create_header(&(answer_message->header));
+    header->ID = query_message->header.ID;
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = htons(1);
     header-> QDCOUNT = htons(1);
-    answer_message->answer.NAME = name;
+    answer_message->answer.NAME = query_message->question.QNAME;
     answer_message->answer.TYPE = htons(1);
     answer_message->answer.CLASS = htons(1);
     answer_message->answer.TTL = htonl(0);
@@ -62,9 +63,10 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     return answer_message;
 }
 
-answer_message_t* create_error_message(int error) {
+answer_message_t* create_error_message(int error, query_message_t* query_message) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
     dns_header_t* header = create_header(&(answer_message->header));
+    header->ID = query_message->header.ID;
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = 0;

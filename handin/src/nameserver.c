@@ -108,11 +108,11 @@ void start_dns_server() {
         memset(buffer, 0, MAXLINE);
         response_ip = get_response_ip(query_name, client_ip); 
         if (response_ip != NULL) {
-            answer_message = create_answer_message(response_ip, query_message->question.QNAME);
+            answer_message = create_answer_message(response_ip, query_message);
             buffer_dns_answer(buffer, answer_message);
             response_len =  strlen(answer_message->answer.NAME) + 1 + sizeof(answer_message->header) + 20;  
         } else {
-            answer_message = create_error_message(3);
+            answer_message = create_error_message(3, query_message);
             buffer_dns_error(buffer, answer_message);
             response_len = sizeof(answer_message->header);
         }
