@@ -71,13 +71,14 @@ answer_message_t* create_error_message(int error) {
 }
 
 void buffer_dns_header(char * buffer, dns_header_t* header) {
-    uint16_t ptr = (uint16_t)(buffer + 2);
     int len = sizeof(*header);
     memcpy(buffer, header, len);
+    uint16_t ptr = (uint16_t)(buffer + 2);
     uint16_t leftmask = 0b1100110011001100;
     uint16_t rightmask = 0x0011001100110011;
-    ptr = (ptr & leftmask >> 2) | (ptr & rightmask << 2);
-    memcpy(buffer+2, &ptr, 2);
+    uint16_t tmp = (ptr & leftmask >> 2) | (ptr & rightmask << 2);
+    printf("%x, %x, %x\n", ptr, ptr & leftmask >> 2, ptr & rightmask << 2)
+    memcpy(buffer+2, &tmp, 2);
 }
 
 void buffer_dns_question(char*buffer, query_message_t* query_message) {
