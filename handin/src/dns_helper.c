@@ -146,10 +146,16 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 
     len = sizeof(uint32_t);
     uint32_t ip = answer_message->answer.RDATA;
-    printf("ip = %x  %d\n", ip, len);
+    // printf("ip = %x  %d\n", ip, len);
     memcpy(ptr, &ip, len);
-    printf("%x, %x, %x, %x", ptr[0], ptr[1], ptr[2], ptr[3]);
+    // printf("%x, %x, %x, %x", ptr[0], ptr[1], ptr[2], ptr[3]);
     ptr += len;
+    int i = 0;
+    for(i = 0; i < strlen(answer_message->answer.NAME) + sizeof(answer_message->header) + 15; i++) {
+        // printf("%hhx ",buffer[i]);
+        printf("%hhx[%c] ", buffer[i], buffer[i]);
+    }
+    printf("=======END\n");
 
 }
 
