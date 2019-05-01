@@ -56,8 +56,8 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     // answer_message->answer.RDATA = (uint32_t)inet_addr(response_ip);
     struct in_addr ip;
     inet_aton(response_ip, &ip);   /* 将字符串转换为二进制 */
-    uint32_t ip = ip.s_addr;
-    answer_message->answer.RDATA = ip;
+    uint32_t s_ip = ip.s_addr;
+    answer_message->answer.RDATA = s_ip;
     return answer_message;
 }
 
