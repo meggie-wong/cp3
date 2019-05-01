@@ -117,11 +117,13 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
 
     len = sizeof(uint32_t);
     uint32_t ip = answer_message->answer.RDATA;
+
     printf("++000+++ %x %d\n", ip, len);
     char test[1024];
-    memcpy(test, &ip, len);
+    memset(test, 0, 1024);
+    memcpy(test, &ip, 4);
     test[len] = '\0';
-    printf("++111+++ %x %x %x %x\n", test[0], test[1],test[2],test[3]);
+    printf("++111+++ %x %x %x %x\n", test[0], test[1],test[2], test[3]);
 
 
     memcpy(ptr, &ip, len);
@@ -134,29 +136,6 @@ void buffer_dns_error(char*buffer, answer_message_t* error_message) {
     int len = sizeof(error_message->header);
     memcpy(buffer, &(error_message->header), len);
 }
-
-
-answer_message_t* de_buffer_response(char* buffer) {
-    answer_message_t* answer_message = (answer_message_t*)malloc(sizeof(answer_message_t));
-    memcpy(answer_message->header, buffer, sizeof(dns_header_t));
-    buffer += sizeof(dns_header_t);
-    memcpy(answer_message->answer, buffer, sizeof(resource_record_t);
-
-    dns_header_t* header = &(answer_message->header);
-    header->ID = htons(header->ID);
-    header->QDCOUNT = htons(header->ID);
-
-    resource_record_t* answer = &(answer_message->answer);
-    answer->NMLENGTH = ntohl(answer->NMLENGTH);
-    answer->TYPE = ntohs(answer->TYPE);
-    answer->CLASS = ntohs(answer->CLASS);
-    answer->TTL = ntohl(answer->TTL);
-    answer->RDLENGTH = ntohs(answer->RDLENGTH);
-    answer->RDATA = ntohl(answer->RDATA);
-
-    return answer_message;
-}
-
 
 void encode_domain(char* domain_name, char* res_buf) {
     // video.cs.cmu.edu -> 5video2cs3cmu3edu0
