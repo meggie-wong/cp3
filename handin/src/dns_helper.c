@@ -44,8 +44,8 @@ query_message_t* create_query_message(char* query_name) {
 answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message_t* answer_message = (answer_message_t*) malloc (sizeof(answer_message_t));
     dns_header_t* header = create_header(&(answer_message->header));
-    header->QR = htons(1);
-    header->AA = htons(1);
+    header->QR = 1;
+    header->AA = 1;
     header-> ANCOUNT = htons(1);
     answer_message->answer.NMLENGTH = htons(strlen(name) + 1);
     answer_message->answer.NAME = name;
