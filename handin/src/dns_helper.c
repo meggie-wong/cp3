@@ -46,6 +46,7 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     header->QR = 1;
     header->AA = 1;
     header-> ANCOUNT = htons(1);
+    header-> QRCOUNT = htons(1);
     answer_message->answer.NAME = name;
     answer_message->answer.TYPE = htons(1);
     answer_message->answer.CLASS = htons(1);
@@ -96,6 +97,17 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     len = strlen(answer_message->answer.NAME)+1;
     memcpy(ptr, answer_message->answer.NAME, len);
     ptr += len;
+
+    // len = strlen(uint16_t);
+    // uint16_t TYPE = 1, CLASS = 1;
+    // memcpy(ptr, &TYPE, len);
+    // ptr += len;
+    // memcpy(ptr, &CLASS, len);
+    // ptr += len;
+
+    // uint16_t c00c = htons(49164);
+    // memcpy(ptr, &c00c, len);
+    // ptr += len;
 
     len = sizeof(uint16_t);
     memcpy(ptr, &(answer_message->answer.TYPE), len);
