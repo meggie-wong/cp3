@@ -55,8 +55,8 @@ answer_message_t* create_answer_message(char* response_ip, char* name) {
     answer_message->answer.RDLENGTH = htons(4);
     // answer_message->answer.RDATA = (uint32_t)inet_addr(response_ip);
     struct in_addr ip;
-    inet_pton(AF_INET, response_ip, &ip);   /* 将字符串转换为二进制 */
-    answer_message->answer.RDATA = ip.s_addr;
+    inet_aton(response_ip, &ip);   /* 将字符串转换为二进制 */
+    answer_message->answer.RDATA = (uint32_t)ip.s_addr;
     return answer_message;
 }
 
@@ -121,6 +121,8 @@ void buffer_dns_answer(char*buffer, answer_message_t* answer_message) {
     memcpy(test, &ip, len);
     test[len] = '\0';
     printf("++111+++ %x %x %x %x\n", test[0], test[1],test[2],test[3]);
+
+
     memcpy(ptr, &ip, len);
     ptr += len;
 
